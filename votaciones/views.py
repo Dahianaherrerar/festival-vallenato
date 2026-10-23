@@ -1,54 +1,168 @@
 
-from rest_framework import generics, viewsets
-from rest_framework.permissions import AllowAny, IsAuthenticated
-from .models import Categoria, Votacion, Opcion
-from .serializers import RegistroUsuarioSerializer
-from .serializers import (
-    CategoriaSerializer,
-    VotacionSerializer,
-    OpcionSerializer,
-    VotoSerializer,
-)
+from django.contrib.auth import login, logout
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, redirect, get_object_or_404
+
+from .forms import RegistroForm, VotoForm
+from .models import Categoria, Votacion, Voto
+from django.contrib import messages
+from django.db import IntegrityError, transaction
+from django.db.models import Count
+from django.utils import timezone
 
 
-class CategoriaViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Categoria.objects.filter(activa=True)
-    serializer_class = CategoriaSerializer
-    permission_classes = [AllowAny]
+
+def inicio(request):
+    return render(request, "votaciones/inicio.html")
 
 
-class VotacionViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Votacion.objects.filter(
-        categoria__activa=True
-    ).select_related("categoria")
-    serializer_class = VotacionSerializer
-    permission_classes = [AllowAny]
+def categorias(request):
+    lista_categorias = Categoria.objects.filter(
+        activa=True
+    ).select_related("edicion")
+
+    return render(
+        request,
+        "votaciones/categorias.html",
+        {"categorias": lista_categorias},
+    )
 
 
-class OpcionViewSet(viewsets.ReadOnlyModelViewSet):
-    serializer_class = OpcionSerializer
-    permission_classes = [AllowAny]
-
-    def get_queryset(self):
-        queryset = Opcion.objects.filter(
-            votacion__categoria__activa=True
+def votaciones(request):
+    lista_votaciones = (
+        Votacion.objects.filter(
+            abierta=True,
+            categoria__activa=True,
         )
+        .select_related("categoria", "categoria__edicion")
+        .prefetch_related("opciones")
+        .order_by("fecha_inicio")
+    )
 
-        votacion_id = self.request.query_params.get("votacion")
-
-        if votacion_id:
-            queryset = queryset.filter(votacion_id=votacion_id)
-
-        return queryset
-
-
-class RegistrarVotoView(generics.CreateAPIView):
-    serializer_class = VotoSerializer
-    permission_classes = [IsAuthenticated]
+    return render(
+        request,
+        "votaciones/votaciones.html",
+        {"votaciones": lista_votaciones},
+    )
 
 
+def registro(request):
+    if request.method == "POST":
+        form = RegistroForm(request.POST)
 
-class RegistroUsuarioView(generics.CreateAPIView):
-    serializer_class = RegistroUsuarioSerializer
-    permission_classes = [AllowAny]
+        if form.is_valid():
+            usuario = form.save()
+            login(request, usuario)
+            return redirect("inicio")
+    else:
+        form = RegistroForm()
 
+    return render(
+        request,
+        "votaciones/registro.html",
+        {"form": form},
+    )
+
+
+@login_required
+def cerrar_sesion(request):
+    if request.method == "POST":
+        logout(request)
+        return redirect("inicio")
+
+    return redirect("inicio")
+
+
+
+
+@login_required
+def votar(request, votacion_id):
+    votacion = get_object_or_404(
+        Votacion,
+        pk=votacion_id,
+        categoria__activa=True,
+        abierta=True,
+    )
+
+    ahora = timezone.now()
+
+    if not (votacion.fecha_inicio <= ahora <= votacion.fecha_fin):
+        messages.error(
+            request,
+            "Esta votación no está dentro de su periodo habilitado.",
+        )
+        return redirect("votaciones")
+
+    if Voto.objects.filter(
+        usuario=request.user,
+        votacion=votacion,
+    ).exists():
+        messages.warning(
+            request,
+            "Ya registraste tu voto en esta votación.",
+        )
+        return redirect("votaciones")
+
+    if request.method == "POST":
+        form = VotoForm(request.POST, votacion=votacion)
+
+        if form.is_valid():
+            opcion = form.cleaned_data["opcion"]
+
+            try:
+                with transaction.atomic():
+                    Voto.objects.create(
+                        usuario=request.user,
+                        votacion=votacion,
+                        opcion=opcion,
+                    )
+
+                messages.success(
+                    request,
+                    "Tu voto se registró correctamente.",
+                )
+                return redirect("votaciones")
+
+            except IntegrityError:
+                messages.warning(
+                    request,
+                    "Ya existe un voto tuyo para esta votación.",
+                )
+                return redirect("votaciones")
+    else:
+        form = VotoForm(votacion=votacion)
+
+    return render(
+        request,
+        "votaciones/votar.html",
+        {"votacion": votacion, "form": form},
+    )
+
+
+def resultados(request, votacion_id):
+    votacion = get_object_or_404(
+        Votacion,
+        pk=votacion_id,
+    )
+
+    if timezone.now() <= votacion.fecha_fin:
+        messages.info(
+            request,
+            "Los resultados estarán disponibles cuando termine la votación.",
+        )
+        return redirect("votaciones")
+
+    opciones = (
+        votacion.opciones
+        .annotate(total_votos=Count("votos"))
+        .order_by("-total_votos", "nombre")
+    )
+
+    return render(
+        request,
+        "votaciones/resultados.html",
+        {
+            "votacion": votacion,
+            "opciones": opciones,
+        },
+    )

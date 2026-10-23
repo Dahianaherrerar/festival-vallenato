@@ -1,0 +1,121 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Festival de la Leyenda Vallenata 2027</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            color: #222;
+            background: #f7f5f0;
+        }
+
+        header {
+            padding: 20px;
+            background: #3d21ad;
+            color: white;
+            text-align: center;
+        }
+
+        nav {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            flex-wrap: wrap;
+            padding: 16px;
+            background: #23059d;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        main {
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+
+        .bienvenida {
+            padding: 40px 24px;
+            text-align: center;
+            background: white;
+            border-radius: 12px;
+        }
+
+        .bienvenida h2 {
+            color: #4d2ad8;
+        }
+
+        footer {
+            padding: 20px;
+            text-align: center;
+            color: white;
+            background: #3d21ad;
+        }
+
+        @media (max-width: 600px) {
+            main {
+                margin: 20px auto;
+                padding: 12px;
+            }
+
+            .bienvenida {
+                padding: 28px 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Festival de la Leyenda Vallenata</h1>
+        <p>Edición 2027</p>
+    </header>
+
+    <nav>
+        <a href="/">Inicio</a>
+        <a href="/categorias/">Categorías</a>
+        <a href="/votaciones/">Votaciones</a>
+        <a href="/login/">Iniciar sesión</a>
+        <a href="/registro/">Registrarse</a>
+    </nav>
+    
+{% if user.is_authenticated %}
+    <form action="{% url 'logout' %}" method="post">
+        {% csrf_token %}
+        <button type="submit">Cerrar sesión</button>
+    </form>
+{% else %}
+    <a href="{% url 'login' %}">Iniciar sesión</a>
+    <a href="{% url 'registro' %}">Registrarse</a>
+{% endif %}
+
+
+    <main>
+        <section class="bienvenida">
+            <h2>¡Bienvenidos!</h2>
+            <p>
+                Participa en el sistema web de votaciones del
+                Festival de la Leyenda Vallenata 2027.
+            </p>
+            <p>
+                Conoce las categorías y las votaciones disponibles
+                para esta edición del festival.
+            </p>
+        </section>
+    </main>
+
+    <footer>
+        <p> · Festival de la Leyenda Vallenata 2027</p>
+    </footer>
+</body>
+</html>

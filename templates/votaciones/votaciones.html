@@ -1,0 +1,46 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Votaciones | Festival 2027</title>
+</head>
+<body>
+    <main>
+        <h1>Votaciones del Festival de la Leyenda Vallenata 2027</h1>
+        <p>Consulta las votaciones disponibles y sus candidatos.</p>
+
+        {% for votacion in votaciones %}
+            <section>
+                <h2>{{ votacion.titulo }}</h2>
+                <p>{{ votacion.descripcion }}</p>
+                <p><strong>Categoría:</strong> {{ votacion.categoria.nombre }}</p>
+
+                <h3>Candidatos</h3>
+                <ul>
+                    {% for opcion in votacion.opciones.all %}
+                        <li>{{ opcion.nombre }}</li>
+                    {% empty %}
+                        <li>Aún no hay candidatos registrados.</li>
+                    {% endfor %}
+                    <p>
+    <a href="{% url 'votar' votacion.id %}">
+        Votar en esta elección
+    </a>
+{% if messages %}
+    {% for message in messages %}
+        <p>{{ message }}</p>
+    {% endfor %}
+{% endif %}
+</p>
+                </ul>
+            </section>
+        {% empty %}
+            <p>En este momento no hay votaciones disponibles.</p>
+        {% endfor %}
+
+        <p><a href="/">Volver al inicio</a></p>
+    </main>
+</body>
+</html>

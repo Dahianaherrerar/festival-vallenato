@@ -1,0 +1,181 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resultados | Festival Vallenato 2027</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f6f9;
+            color: #263238;
+        }
+
+        header {
+            background: #173b35;
+            color: white;
+            padding: 22px 16px;
+            text-align: center;
+        }
+
+        header h1 {
+            margin: 0 0 8px;
+            font-size: 26px;
+        }
+
+        header p {
+            margin: 0;
+            color: #e0eee9;
+        }
+
+        main {
+            width: min(900px, 92%);
+            margin: 35px auto;
+        }
+
+        .panel {
+            background: white;
+            padding: 28px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px #00000010;
+        }
+
+        h2 {
+            margin-top: 0;
+            color: #173b35;
+        }
+
+        .descripcion {
+            color: #5f6b70;
+            line-height: 1.6;
+        }
+
+        .tabla-contenedor {
+            width: 100%;
+            overflow-x: auto;
+            margin-top: 24px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 280px;
+        }
+
+        th, td {
+            padding: 14px;
+            text-align: left;
+            border-bottom: 1px solid #e2e7e9;
+        }
+
+        th {
+            background: #e7f0ed;
+            color: #173b35;
+        }
+
+        .cantidad {
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .acciones {
+            margin-top: 24px;
+        }
+
+        .boton {
+            display: inline-block;
+            padding: 12px 18px;
+            border-radius: 7px;
+            background: #176b52;
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .boton:hover {
+            background: #104c3a;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #667276;
+            font-size: 14px;
+        }
+
+        @media (max-width: 600px) {
+            header h1 {
+                font-size: 21px;
+            }
+
+            main {
+                margin: 20px auto;
+            }
+
+            .panel {
+                padding: 18px;
+            }
+
+            th, td {
+                padding: 10px 8px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>Festival de la Leyenda Vallenata</h1>
+        <p>Edición 2027 · Resultados de votación</p>
+    </header>
+
+    <main>
+        <section class="panel">
+            <h2>{{ votacion.titulo }}</h2>
+            <p class="descripcion">{{ votacion.descripcion }}</p>
+
+            <div class="tabla-contenedor">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Candidato</th>
+                            <th class="cantidad">Total de votos</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for opcion in opciones %}
+                            <tr>
+                                <td>{{ opcion.nombre }}</td>
+                                <td class="cantidad">{{ opcion.total_votos }}</td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="2">
+                                    No hay candidatos registrados.
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="acciones">
+                <a class="boton" href="{% url 'votaciones' %}">
+                    Volver a las votaciones
+                </a>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        Sistema web de votaciones · Festival 2027
+    </footer>
+</body>
+</html>

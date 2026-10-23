@@ -1,0 +1,29 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Categorías | Festival 2027</title>
+</head>
+<body>
+    <main>
+        <h1>Categorías del Festival 2027</h1>
+
+        {% for categoria in categorias %}
+            <article>
+                <h2>{{ categoria.nombre }}</h2>
+                <p>{{ categoria.descripcion }}</p>
+
+                {% if categoria.edicion %}
+                    <p>Edición: {{ categoria.edicion.anio }}</p>
+                {% endif %}
+            </article>
+        {% empty %}
+            <p>Actualmente no hay categorías disponibles.</p>
+        {% endfor %}
+
+        <a href="/">Volver al inicio</a>
+    </main>
+</body>
+</html>

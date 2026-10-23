@@ -1,0 +1,23 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro | Festival 2027</title>
+</head>
+<body>
+    <main>
+        <h1>Crear una cuenta</h1>
+
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Registrarme</button>
+        </form>
+
+        <p>¿Ya tienes cuenta? <a href="{% url 'login' %}">Inicia sesión</a></p>
+        <a href="/">Volver al inicio</a>
+    </main>
+</body>
+</html>

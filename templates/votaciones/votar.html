@@ -1,0 +1,27 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Votar | Festival 2027</title>
+</head>
+<body>
+    <main>
+        <h1>{{ votacion.titulo }}</h1>
+        <p>{{ votacion.descripcion }}</p>
+
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Registrar mi voto</button>
+        </form>
+
+        <p>
+            <a href="{% url 'votaciones' %}">
+                Volver a las votaciones
+            </a>
+        </p>
+    </main>
+</body>
+</html>

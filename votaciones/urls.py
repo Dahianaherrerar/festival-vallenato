@@ -1,25 +1,31 @@
 
-from django.urls import include, path
-from rest_framework.routers import DefaultRouter
-from .views import RegistroUsuarioView
-from .views import (
-    CategoriaViewSet,
-    VotacionViewSet,
-    OpcionViewSet,
-    RegistrarVotoView,
-)
-
-router = DefaultRouter()
-router.register("categorias", CategoriaViewSet, basename="categoria")
-router.register("votaciones", VotacionViewSet, basename="votacion")
-router.register("opciones", OpcionViewSet, basename="opcion")
+from django.urls import path
+from django.contrib.auth import views as auth_views
+from . import views
 
 urlpatterns = [
-    path("", include(router.urls)),
-    path("votos/", RegistrarVotoView.as_view(), name="registrar-voto"),
+    path("", views.inicio, name="inicio"),
+    path("categorias/", views.categorias, name="categorias"),
+    path("registro/", views.registro, name="registro"),
     path(
-    "registro/",
-    RegistroUsuarioView.as_view(),
-    name="registro-usuario"
-),
+        "login/",
+        auth_views.LoginView.as_view(
+            template_name="votaciones/login.html"
+        ),
+        name="login",
+    ),
+    path("logout/", views.cerrar_sesion, name="logout"),
+    path("votaciones/", views.votaciones, name="votaciones"),
+    path(
+        "votaciones/<int:votacion_id>/votar/",
+        views.votar,
+        name="votar",
+    ),
+    path(
+        "votaciones/<int:votacion_id>/resultados/",
+        views.resultados,
+        name="resultados",
+    ),
+    
+    
 ]
