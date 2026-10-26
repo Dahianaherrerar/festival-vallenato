@@ -1,46 +1,69 @@
+{% extends "base.html" %}
 
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Votaciones | Festival 2027</title>
-</head>
-<body>
-    <main>
-        <h1>Votaciones del Festival de la Leyenda Vallenata 2027</h1>
-        <p>Consulta las votaciones disponibles y sus candidatos.</p>
+{% block titulo %}Votaciones{% endblock %}
 
+{% block portada %}
+<header class="fv-encabezado">
+    <div class="container">
+        <h1>Votaciones abiertas</h1>
+        <p>Consulta las votaciones disponibles y sus participantes.</p>
+    </div>
+</header>
+{% endblock %}
+
+{% block contenido %}
+<section class="container">
+    <div class="row g-4">
         {% for votacion in votaciones %}
-            <section>
-                <h2>{{ votacion.titulo }}</h2>
-                <p>{{ votacion.descripcion }}</p>
-                <p><strong>Categoría:</strong> {{ votacion.categoria.nombre }}</p>
+            <div class="col-md-6">
+                <article class="fv-tarjeta">
+                    <div class="fv-tarjeta-franja"></div>
+                    <div class="fv-tarjeta-cuerpo">
+                        <span class="fv-insignia align-self-start">
+                            {{ votacion.categoria.nombre }}
+                        </span>
+                        <h2>{{ votacion.titulo }}</h2>
+                        {% if votacion.descripcion %}
+                            <p class="fv-tarjeta-texto">{{ votacion.descripcion }}</p>
+                        {% endif %}
 
-                <h3>Candidatos</h3>
-                <ul>
-                    {% for opcion in votacion.opciones.all %}
-                        <li>{{ opcion.nombre }}</li>
-                    {% empty %}
-                        <li>Aún no hay candidatos registrados.</li>
-                    {% endfor %}
-                    <p>
-    <a href="{% url 'votar' votacion.id %}">
-        Votar en esta elección
-    </a>
-{% if messages %}
-    {% for message in messages %}
-        <p>{{ message }}</p>
-    {% endfor %}
-{% endif %}
-</p>
-                </ul>
-            </section>
+                        <p class="fv-fechas mb-3">
+                            <i class="bi bi-calendar-event"></i>
+                            Del {{ votacion.fecha_inicio|date:"j \d\e F"|lower }}
+                            al {{ votacion.fecha_fin|date:"j \d\e F, g:i a"|lower }}
+                        </p>
+
+                        <h3 class="h6 fw-bold mb-2">Participantes</h3>
+                        <div class="mb-3">
+                            {% for opcion in votacion.opciones.all %}
+                                <span class="fv-chip">{{ opcion.nombre }}</span>
+                            {% empty %}
+                                <span class="fv-tarjeta-texto">Aún no hay participantes registrados.</span>
+                            {% endfor %}
+                        </div>
+
+                        <div class="mt-auto">
+                            {% if user.is_authenticated %}
+                                <a class="btn btn-fv w-100" href="{% url 'votar' votacion.id %}">
+                                    <i class="bi bi-check2-square"></i> Votar
+                                </a>
+                            {% else %}
+                                <a class="btn btn-fv-borde w-100" href="{% url 'login' %}?next={% url 'votar' votacion.id %}">
+                                    Inicia sesión para votar
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </article>
+            </div>
         {% empty %}
-            <p>En este momento no hay votaciones disponibles.</p>
+            <div class="col-12">
+                <div class="fv-vacio">
+                    <i class="bi bi-inbox"></i>
+                    En este momento no hay votaciones disponibles.
+                </div>
+            </div>
         {% endfor %}
-
-        <p><a href="/">Volver al inicio</a></p>
-    </main>
-</body>
-</html>
+    </div>
+</section>
+{% endblock %}

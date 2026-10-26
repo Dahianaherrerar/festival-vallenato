@@ -1,23 +1,49 @@
+{% extends "base.html" %}
 
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registro | Festival 2027</title>
-</head>
-<body>
-    <main>
-        <h1>Crear una cuenta</h1>
+{% block titulo %}Crear cuenta{% endblock %}
 
-        <form method="post">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit">Registrarme</button>
-        </form>
+{% block contenido %}
+<section class="container py-5">
+    <div class="fv-formulario">
+        <div class="text-center mb-4">
+            <span class="fv-sello mb-3">60°</span>
+            <h1 class="h3">Crear una cuenta</h1>
+            <p class="text-muted mb-0">Regístrate para participar en las votaciones.</p>
+        </div>
 
-        <p>¿Ya tienes cuenta? <a href="{% url 'login' %}">Inicia sesión</a></p>
-        <a href="/">Volver al inicio</a>
-    </main>
-</body>
-</html>
+        <div class="fv-tarjeta">
+            <div class="fv-tarjeta-franja"></div>
+            <div class="fv-tarjeta-cuerpo">
+                {% if form.non_field_errors %}
+                    <div class="alert alert-danger py-2 small" role="alert">
+                        {{ form.non_field_errors }}
+                    </div>
+                {% endif %}
+
+                <form method="post" novalidate>
+                    {% csrf_token %}
+
+                    {% for campo in form %}
+                        <div class="mb-3">
+                            <label for="{{ campo.id_for_label }}">{{ campo.label }}</label>
+                            {{ campo }}
+                            {% if campo.errors %}
+                                <div class="fv-error">{{ campo.errors }}</div>
+                            {% endif %}
+                            {% if campo.help_text %}
+                                <div class="fv-ayuda">{{ campo.help_text|safe }}</div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+
+                    <button type="submit" class="btn btn-fv w-100 btn-lg mt-2">Registrarme</button>
+                </form>
+            </div>
+        </div>
+
+        <p class="text-center mt-3 mb-0">
+            ¿Ya tienes cuenta? <a href="{% url 'login' %}">Inicia sesión</a>
+        </p>
+    </div>
+</section>
+{% endblock %}
