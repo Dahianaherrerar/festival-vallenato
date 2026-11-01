@@ -1,27 +1,44 @@
+{% extends "base.html" %}
 
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Iniciar sesión | Festival 2027</title>
-</head>
-<body>
-    <main>
-        <h1>Iniciar sesión</h1>
+{% block titulo %}Iniciar sesión{% endblock %}
 
-        {% if form.errors %}
-            <p>El usuario o la contraseña no son correctos. Inténtalo de nuevo.</p>
-        {% endif %}
+{% block contenido %}
+<section class="container py-5">
+    <div class="fv-formulario">
+        <div class="text-center mb-4">
+            <span class="fv-sello mb-3">60°</span>
+            <h1 class="h3">Iniciar sesión</h1>
+            <p class="text-muted mb-0">Ingresa para votar por tus favoritos.</p>
+        </div>
 
-        <form method="post">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit">Ingresar</button>
-        </form>
+        <div class="fv-tarjeta">
+            <div class="fv-tarjeta-franja"></div>
+            <div class="fv-tarjeta-cuerpo">
+                {% if form.errors %}
+                    <div class="alert alert-danger py-2 small" role="alert">
+                        El usuario o la contraseña no son correctos. Inténtalo de nuevo.
+                    </div>
+                {% endif %}
 
-        <p>¿No tienes cuenta? <a href="{% url 'registro' %}">Regístrate</a></p>
-        <a href="/">Volver al inicio</a>
-    </main>
-</body>
-</html>
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    <input type="hidden" name="next" value="{{ next }}">
+
+                    {% for campo in form %}
+                        <div class="mb-3">
+                            <label for="{{ campo.id_for_label }}">{{ campo.label }}</label>
+                            {{ campo }}
+                        </div>
+                    {% endfor %}
+
+                    <button type="submit" class="btn btn-fv w-100 btn-lg mt-2">Ingresar</button>
+                </form>
+            </div>
+        </div>
+
+        <p class="text-center mt-3 mb-0">
+            ¿No tienes cuenta? <a href="{% url 'registro' %}">Regístrate</a>
+        </p>
+    </div>
+</section>
+{% endblock %}

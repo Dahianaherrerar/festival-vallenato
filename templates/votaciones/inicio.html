@@ -1,121 +1,86 @@
+{% extends "base.html" %}
 
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Festival de la Leyenda Vallenata 2027</title>
-    <style>
-        * {
-            box-sizing: border-box;
-        }
+{% block titulo %}Inicio{% endblock %}
 
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            color: #222;
-            background: #f7f5f0;
-        }
+{% block portada %}
+<section class="fv-portada">
+    <div class="container">
+        <div class="row align-items-center g-4">
+            <div class="col-lg-7 order-2 order-lg-1">
+                <span class="fv-etiqueta mb-3">Valledupar · 2027</span>
+                <h1 class="mt-3">60° Festival de la Leyenda Vallenata</h1>
+                <p class="lead mt-3">
+                    Seis décadas de acordeón, caja y guacharaca. Participa en el
+                    sistema web de votaciones y elige a tus favoritos en cada categoría.
+                </p>
+                <div class="d-flex flex-column flex-sm-row gap-2 mt-4">
+                    <a class="btn btn-fv-dorado btn-lg" href="{% url 'votaciones' %}">
+                        <i class="bi bi-check2-square"></i> Ver votaciones
+                    </a>
+                    <a class="btn btn-outline-light btn-lg" href="{% url 'categorias' %}">
+                        Explorar categorías
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-5 order-1 order-lg-2 text-center text-lg-end">
+                <div class="fv-numero-60">60<sup>°</sup></div>
+                <div class="text-white-50 fw-semibold">Edición 2027</div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
 
-        header {
-            padding: 20px;
-            background: #3d21ad;
-            color: white;
-            text-align: center;
-        }
+{% block contenido %}
+<section class="container py-5">
+    <div class="text-center mb-4">
+        <h2 class="fv-titulo">¿Cómo votar?</h2>
+        <p class="text-muted mb-0">Tres pasos sencillos para participar.</p>
+    </div>
 
-        nav {
-            display: flex;
-            justify-content: center;
-            gap: 24px;
-            flex-wrap: wrap;
-            padding: 16px;
-            background: #23059d;
-        }
+    <div class="row g-4">
+        <div class="col-md-4">
+            <article class="fv-tarjeta">
+                <div class="fv-tarjeta-cuerpo">
+                    <span class="fv-icono-paso"><i class="bi bi-person-plus"></i></span>
+                    <h3>1. Crea tu cuenta</h3>
+                    <p class="fv-tarjeta-texto mb-0">
+                        Regístrate con tu nombre de usuario y correo electrónico.
+                    </p>
+                </div>
+            </article>
+        </div>
+        <div class="col-md-4">
+            <article class="fv-tarjeta">
+                <div class="fv-tarjeta-cuerpo">
+                    <span class="fv-icono-paso"><i class="bi bi-music-note-list"></i></span>
+                    <h3>2. Elige una votación</h3>
+                    <p class="fv-tarjeta-texto mb-0">
+                        Consulta las categorías del Festival y las votaciones abiertas.
+                    </p>
+                </div>
+            </article>
+        </div>
+        <div class="col-md-4">
+            <article class="fv-tarjeta">
+                <div class="fv-tarjeta-cuerpo">
+                    <span class="fv-icono-paso"><i class="bi bi-check2-circle"></i></span>
+                    <h3>3. Registra tu voto</h3>
+                    <p class="fv-tarjeta-texto mb-0">
+                        Selecciona tu favorito. Solo se permite un voto por votación.
+                    </p>
+                </div>
+            </article>
+        </div>
+    </div>
 
-        nav a {
-            color: white;
-            text-decoration: none;
-            font-weight: bold;
-        }
-
-        main {
-            max-width: 1000px;
-            margin: 40px auto;
-            padding: 20px;
-        }
-
-        .bienvenida {
-            padding: 40px 24px;
-            text-align: center;
-            background: white;
-            border-radius: 12px;
-        }
-
-        .bienvenida h2 {
-            color: #4d2ad8;
-        }
-
-        footer {
-            padding: 20px;
-            text-align: center;
-            color: white;
-            background: #3d21ad;
-        }
-
-        @media (max-width: 600px) {
-            main {
-                margin: 20px auto;
-                padding: 12px;
-            }
-
-            .bienvenida {
-                padding: 28px 16px;
-            }
-        }
-    </style>
-</head>
-<body>
-    <header>
-        <h1>Festival de la Leyenda Vallenata</h1>
-        <p>Edición 2027</p>
-    </header>
-
-    <nav>
-        <a href="/">Inicio</a>
-        <a href="/categorias/">Categorías</a>
-        <a href="/votaciones/">Votaciones</a>
-        <a href="/login/">Iniciar sesión</a>
-        <a href="/registro/">Registrarse</a>
-    </nav>
-    
-{% if user.is_authenticated %}
-    <form action="{% url 'logout' %}" method="post">
-        {% csrf_token %}
-        <button type="submit">Cerrar sesión</button>
-    </form>
-{% else %}
-    <a href="{% url 'login' %}">Iniciar sesión</a>
-    <a href="{% url 'registro' %}">Registrarse</a>
-{% endif %}
-
-
-    <main>
-        <section class="bienvenida">
-            <h2>¡Bienvenidos!</h2>
-            <p>
-                Participa en el sistema web de votaciones del
-                Festival de la Leyenda Vallenata 2027.
+    {% if not user.is_authenticated %}
+        <div class="text-center mt-5">
+            <a class="btn btn-fv btn-lg" href="{% url 'registro' %}">Crear mi cuenta</a>
+            <p class="mt-2 mb-0 small">
+                ¿Ya tienes cuenta? <a href="{% url 'login' %}">Inicia sesión</a>
             </p>
-            <p>
-                Conoce las categorías y las votaciones disponibles
-                para esta edición del festival.
-            </p>
-        </section>
-    </main>
-
-    <footer>
-        <p> · Festival de la Leyenda Vallenata 2027</p>
-    </footer>
-</body>
-</html>
+        </div>
+    {% endif %}
+</section>
+{% endblock %}

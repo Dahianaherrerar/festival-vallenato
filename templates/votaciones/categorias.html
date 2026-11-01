@@ -1,29 +1,47 @@
+{% extends "base.html" %}
 
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Categorías | Festival 2027</title>
-</head>
-<body>
-    <main>
-        <h1>Categorías del Festival 2027</h1>
+{% block titulo %}Categorías{% endblock %}
 
+{% block portada %}
+<header class="fv-encabezado">
+    <div class="container">
+        <h1>Categorías del Festival</h1>
+        <p>Conoce las categorías habilitadas en esta edición.</p>
+    </div>
+</header>
+{% endblock %}
+
+{% block contenido %}
+<section class="container">
+    <div class="row g-4">
         {% for categoria in categorias %}
-            <article>
-                <h2>{{ categoria.nombre }}</h2>
-                <p>{{ categoria.descripcion }}</p>
-
-                {% if categoria.edicion %}
-                    <p>Edición: {{ categoria.edicion.anio }}</p>
-                {% endif %}
-            </article>
+            <div class="col-sm-6 col-lg-4">
+                <article class="fv-tarjeta">
+                    <div class="fv-tarjeta-franja"></div>
+                    <div class="fv-tarjeta-cuerpo">
+                        {% if categoria.edicion %}
+                            <span class="fv-insignia fv-insignia-dorada align-self-start">
+                                Edición {{ categoria.edicion.anio }}
+                            </span>
+                        {% endif %}
+                        <h2>{{ categoria.nombre }}</h2>
+                        <p class="fv-tarjeta-texto">
+                            {{ categoria.descripcion|default:"Sin descripción por ahora." }}
+                        </p>
+                        <a class="btn btn-fv-borde mt-auto align-self-start" href="{% url 'votaciones' %}">
+                            Ver votaciones
+                        </a>
+                    </div>
+                </article>
+            </div>
         {% empty %}
-            <p>Actualmente no hay categorías disponibles.</p>
+            <div class="col-12">
+                <div class="fv-vacio">
+                    <i class="bi bi-collection"></i>
+                    Actualmente no hay categorías disponibles.
+                </div>
+            </div>
         {% endfor %}
-
-        <a href="/">Volver al inicio</a>
-    </main>
-</body>
-</html>
+    </div>
+</section>
+{% endblock %}
