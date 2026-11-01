@@ -1,0 +1,505 @@
+/* Estilos del Sistema de Votaciones — 60° Festival de la Leyenda Vallenata
+   Paleta tomada del sitio oficial (festivalvallenato.com): rojo, vinotinto, negro y blanco.
+   El dorado es un acento para la celebración de los 60 años. */
+
+:root {
+    --fv-rojo: #dd3333;
+    --fv-rojo-oscuro: #b82424;
+    --fv-vinotinto: #690000;
+    --fv-negro: #111111;
+    --fv-gris-oscuro: #313131;
+    --fv-gris: #6b6b6b;
+    --fv-crema: #faf7f2;
+    --fv-blanco: #ffffff;
+    --fv-dorado: #e0a526;
+    --fv-dorado-claro: #fdd79a;
+    --fv-borde: #e7e1d8;
+    --fv-sombra: 0 6px 20px rgba(0, 0, 0, 0.08);
+    --fv-radio: 14px;
+}
+
+/* ---------- Base ---------- */
+body {
+    font-family: "Poppins", system-ui, sans-serif;
+    color: var(--fv-gris-oscuro);
+    background: var(--fv-crema);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1;
+}
+
+h1, h2, h3, h4, h5,
+.navbar-brand,
+.fv-titulo {
+    font-family: "Montserrat", sans-serif;
+    font-weight: 800;
+    color: var(--fv-negro);
+}
+
+a {
+    color: var(--fv-rojo);
+}
+
+a:hover {
+    color: var(--fv-vinotinto);
+}
+
+/* ---------- Barra de navegación ---------- */
+.fv-navbar {
+    background: var(--fv-negro);
+    border-bottom: 4px solid var(--fv-rojo);
+}
+
+.fv-navbar .navbar-brand {
+    color: var(--fv-blanco);
+    font-size: 1.05rem;
+    line-height: 1.1;
+}
+
+.fv-navbar .navbar-brand small {
+    display: block;
+    font-family: "Poppins", sans-serif;
+    font-weight: 500;
+    font-size: 0.72rem;
+    color: var(--fv-dorado-claro);
+    letter-spacing: 0.04em;
+}
+
+.fv-sello {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: var(--fv-rojo);
+    border: 2px solid var(--fv-dorado);
+    color: var(--fv-blanco);
+    font-family: "Montserrat", sans-serif;
+    font-weight: 800;
+    font-size: 0.95rem;
+    flex-shrink: 0;
+}
+
+.fv-navbar .nav-link {
+    color: rgba(255, 255, 255, 0.8);
+    font-weight: 500;
+    padding: 0.6rem 0.9rem;
+    border-radius: 8px;
+}
+
+.fv-navbar .nav-link:hover,
+.fv-navbar .nav-link:focus {
+    color: var(--fv-blanco);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.fv-navbar .nav-link.active {
+    color: var(--fv-blanco);
+    background: var(--fv-rojo);
+}
+
+.fv-navbar .navbar-toggler {
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
+.fv-saludo {
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 0.9rem;
+}
+
+/* ---------- Botones ---------- */
+.btn-fv {
+    background: var(--fv-rojo);
+    border: 2px solid var(--fv-rojo);
+    color: var(--fv-blanco);
+    font-weight: 600;
+    border-radius: 10px;
+    padding: 0.6rem 1.2rem;
+}
+
+.btn-fv:hover,
+.btn-fv:focus {
+    background: var(--fv-vinotinto);
+    border-color: var(--fv-vinotinto);
+    color: var(--fv-blanco);
+}
+
+.btn-fv-borde {
+    background: transparent;
+    border: 2px solid var(--fv-rojo);
+    color: var(--fv-rojo);
+    font-weight: 600;
+    border-radius: 10px;
+    padding: 0.6rem 1.2rem;
+}
+
+.btn-fv-borde:hover,
+.btn-fv-borde:focus {
+    background: var(--fv-rojo);
+    color: var(--fv-blanco);
+}
+
+.btn-fv-dorado {
+    background: var(--fv-dorado);
+    border: 2px solid var(--fv-dorado);
+    color: var(--fv-negro);
+    font-weight: 700;
+    border-radius: 10px;
+    padding: 0.6rem 1.2rem;
+}
+
+.btn-fv-dorado:hover,
+.btn-fv-dorado:focus {
+    background: var(--fv-dorado-claro);
+    border-color: var(--fv-dorado-claro);
+    color: var(--fv-negro);
+}
+
+.btn-fv-salir {
+    color: var(--fv-blanco);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: 8px;
+    font-size: 0.9rem;
+}
+
+.btn-fv-salir:hover {
+    background: var(--fv-blanco);
+    color: var(--fv-negro);
+}
+
+/* ---------- Encabezado de cada página ---------- */
+.fv-encabezado {
+    background: linear-gradient(135deg, var(--fv-vinotinto), var(--fv-rojo));
+    color: var(--fv-blanco);
+    padding: 2.5rem 0 2rem;
+    margin-bottom: 2rem;
+}
+
+.fv-encabezado h1 {
+    color: var(--fv-blanco);
+    font-size: 1.7rem;
+    margin-bottom: 0.4rem;
+}
+
+.fv-encabezado p {
+    margin: 0;
+    color: rgba(255, 255, 255, 0.85);
+}
+
+/* ---------- Portada (inicio) ---------- */
+.fv-portada {
+    background:
+        radial-gradient(circle at 85% 20%, rgba(224, 165, 38, 0.35), transparent 45%),
+        linear-gradient(135deg, var(--fv-negro) 0%, var(--fv-vinotinto) 55%, var(--fv-rojo) 100%);
+    color: var(--fv-blanco);
+    padding: 3.5rem 0 3rem;
+}
+
+.fv-portada h1 {
+    color: var(--fv-blanco);
+    font-size: 2rem;
+    line-height: 1.15;
+}
+
+.fv-portada .lead {
+    color: rgba(255, 255, 255, 0.88);
+    font-size: 1.05rem;
+}
+
+.fv-numero-60 {
+    font-family: "Montserrat", sans-serif;
+    font-weight: 800;
+    font-size: 6rem;
+    line-height: 1;
+    color: var(--fv-dorado);
+    text-shadow: 0 4px 0 rgba(0, 0, 0, 0.25);
+}
+
+.fv-numero-60 sup {
+    font-size: 0.45em;
+    top: -1.2em;
+}
+
+.fv-etiqueta {
+    display: inline-block;
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: var(--fv-dorado-claro);
+    border-radius: 999px;
+    padding: 0.3rem 0.9rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+/* ---------- Tarjetas ---------- */
+.fv-tarjeta {
+    background: var(--fv-blanco);
+    border: 1px solid var(--fv-borde);
+    border-radius: var(--fv-radio);
+    box-shadow: var(--fv-sombra);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.fv-tarjeta-franja {
+    height: 6px;
+    background: linear-gradient(90deg, var(--fv-rojo), var(--fv-dorado));
+}
+
+.fv-tarjeta-cuerpo {
+    padding: 1.4rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.fv-tarjeta h2,
+.fv-tarjeta h3 {
+    font-size: 1.15rem;
+    margin-bottom: 0.5rem;
+}
+
+.fv-tarjeta-texto {
+    color: var(--fv-gris);
+    font-size: 0.93rem;
+}
+
+.fv-insignia {
+    display: inline-block;
+    background: #fdecec;
+    color: var(--fv-vinotinto);
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: 999px;
+    padding: 0.25rem 0.75rem;
+    margin-bottom: 0.75rem;
+}
+
+.fv-insignia-dorada {
+    background: #fdf3df;
+    color: #7a5200;
+}
+
+.fv-icono-paso {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: #fdecec;
+    color: var(--fv-rojo);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    margin-bottom: 0.9rem;
+}
+
+.fv-fechas {
+    font-size: 0.85rem;
+    color: var(--fv-gris);
+}
+
+.fv-fechas i {
+    color: var(--fv-rojo);
+}
+
+.fv-chip {
+    display: inline-block;
+    background: var(--fv-crema);
+    border: 1px solid var(--fv-borde);
+    border-radius: 999px;
+    padding: 0.2rem 0.7rem;
+    font-size: 0.82rem;
+    margin: 0 0.3rem 0.4rem 0;
+}
+
+.fv-vacio {
+    background: var(--fv-blanco);
+    border: 2px dashed var(--fv-borde);
+    border-radius: var(--fv-radio);
+    padding: 2.5rem 1.5rem;
+    text-align: center;
+    color: var(--fv-gris);
+}
+
+.fv-vacio i {
+    font-size: 2.2rem;
+    color: var(--fv-rojo);
+    display: block;
+    margin-bottom: 0.6rem;
+}
+
+/* ---------- Formularios (login, registro, votar) ---------- */
+.fv-formulario {
+    max-width: 480px;
+    margin: 0 auto;
+}
+
+.fv-formulario label {
+    font-weight: 600;
+    font-size: 0.92rem;
+    margin-bottom: 0.35rem;
+    color: var(--fv-negro);
+}
+
+.fv-formulario input[type="text"],
+.fv-formulario input[type="email"],
+.fv-formulario input[type="password"] {
+    display: block;
+    width: 100%;
+    padding: 0.65rem 0.9rem;
+    font-size: 1rem;
+    border: 1px solid #cfc8bd;
+    border-radius: 10px;
+    background: var(--fv-blanco);
+}
+
+.fv-formulario input:focus {
+    outline: none;
+    border-color: var(--fv-rojo);
+    box-shadow: 0 0 0 3px rgba(221, 51, 51, 0.2);
+}
+
+.fv-ayuda {
+    font-size: 0.8rem;
+    color: var(--fv-gris);
+    margin-top: 0.35rem;
+}
+
+.fv-ayuda ul {
+    padding-left: 1.1rem;
+    margin: 0;
+}
+
+.fv-error {
+    font-size: 0.85rem;
+    color: var(--fv-rojo-oscuro);
+    margin-top: 0.35rem;
+}
+
+.fv-error ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+/* Opciones de voto como tarjetas seleccionables */
+.fv-opciones ul,
+.fv-opciones > div {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.fv-opcion {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    border: 2px solid var(--fv-borde);
+    border-radius: 12px;
+    padding: 0.9rem 1rem;
+    margin-bottom: 0.7rem;
+    background: var(--fv-blanco);
+    cursor: pointer;
+    font-weight: 500;
+    transition: border-color 0.15s, background 0.15s;
+}
+
+.fv-opcion:hover {
+    border-color: var(--fv-dorado);
+}
+
+.fv-opcion input[type="radio"] {
+    width: 1.2rem;
+    height: 1.2rem;
+    accent-color: var(--fv-rojo);
+    flex-shrink: 0;
+}
+
+.fv-opcion:has(input:checked) {
+    border-color: var(--fv-rojo);
+    background: #fff5f5;
+}
+
+/* ---------- Resultados ---------- */
+.fv-resultado {
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--fv-borde);
+}
+
+.fv-resultado:last-child {
+    border-bottom: none;
+}
+
+.fv-barra {
+    height: 12px;
+    background: #f0ebe3;
+    border-radius: 999px;
+    overflow: hidden;
+    margin-top: 0.45rem;
+}
+
+.fv-barra-relleno {
+    height: 100%;
+    background: linear-gradient(90deg, var(--fv-rojo), var(--fv-vinotinto));
+    border-radius: 999px;
+}
+
+.fv-ganador .fv-barra-relleno {
+    background: linear-gradient(90deg, var(--fv-dorado), #c98a0c);
+}
+
+.fv-total {
+    font-family: "Montserrat", sans-serif;
+    font-weight: 800;
+    color: var(--fv-negro);
+    white-space: nowrap;
+}
+
+/* ---------- Mensajes ---------- */
+.fv-mensajes .alert {
+    border-radius: 12px;
+    border-width: 0 0 0 5px;
+    box-shadow: var(--fv-sombra);
+}
+
+/* ---------- Pie de página ---------- */
+.fv-pie {
+    background: var(--fv-negro);
+    color: rgba(255, 255, 255, 0.7);
+    border-top: 4px solid var(--fv-dorado);
+    padding: 1.8rem 0;
+    margin-top: 3rem;
+    font-size: 0.88rem;
+}
+
+.fv-pie strong {
+    color: var(--fv-blanco);
+}
+
+/* ---------- Pantallas más grandes (mobile-first) ---------- */
+@media (min-width: 768px) {
+    .fv-portada {
+        padding: 5rem 0 4.5rem;
+    }
+
+    .fv-portada h1 {
+        font-size: 2.8rem;
+    }
+
+    .fv-numero-60 {
+        font-size: 10rem;
+    }
+
+    .fv-encabezado h1 {
+        font-size: 2.2rem;
+    }
+}
