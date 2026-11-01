@@ -93,13 +93,21 @@ def votar(request, votacion_id):
         )
         return redirect("votaciones")
 
+    if not votacion.categoria.edicion_id:
+        messages.error(
+            request,
+            "La categoría no tiene una edición asignada y no admite votos.",
+        )
+        return redirect("votaciones")
+
     if Voto.objects.filter(
         usuario=request.user,
-        votacion=votacion,
+        categoria=votacion.categoria,
+        edicion_id=votacion.categoria.edicion_id,
     ).exists():
         messages.warning(
             request,
-            "Ya registraste tu voto en esta votación.",
+            "Ya registraste tu voto en esta categoría para esta edición.",
         )
         return redirect("votaciones")
 
@@ -113,6 +121,8 @@ def votar(request, votacion_id):
                 with transaction.atomic():
                     Voto.objects.create(
                         usuario=request.user,
+                        edicion=votacion.categoria.edicion,
+                        categoria=votacion.categoria,
                         votacion=votacion,
                         opcion=opcion,
                     )
@@ -126,7 +136,7 @@ def votar(request, votacion_id):
             except IntegrityError:
                 messages.warning(
                     request,
-                    "Ya existe un voto tuyo para esta votación.",
+                    "Ya registraste tu voto en esta categoría para esta edición.",
                 )
                 return redirect("votaciones")
     else:
