@@ -27,7 +27,7 @@ Desarrollar una plataforma web que permita organizar procesos de votación de ma
 - Consulta de categorías activas.
 - Consulta de votaciones habilitadas.
 - Registro de votos para usuarios autenticados.
-- Validación para impedir que un usuario vote más de una vez en una misma votación.
+- Restricción para permitir un voto por usuario, categoría y edición, incluso si hay varios subeventos.
 - Validación de las opciones disponibles para cada votación.
 - Control del periodo de inicio y finalización de las votaciones.
 - Consulta de resultados una vez finalizado el periodo correspondiente.
@@ -48,13 +48,16 @@ festival_vallenato/
 ├── templates/
 ├── votaciones/
 │   ├── migrations/
+│   ├── tests/
+│   │   ├── test_concurrencia.py
+│   │   ├── test_unicidad.py
+│   │   └── test_vistas.py
 │   ├── admin.py
 │   ├── forms.py
 │   ├── models.py
-│   ├── tests.py
 │   ├── urls.py
 │   └── views.py
-├── .env
+├── .env.example
 ├── .gitignore
 ├── manage.py
 └── requirements.txt
@@ -64,9 +67,10 @@ festival_vallenato/
 - `templates/`: plantillas HTML de la aplicación.
 - `votaciones/`: modelos, formularios, vistas, rutas, administración y pruebas.
 - `migrations/`: historial de cambios en los modelos de datos.
+- `tests/`: pruebas automatizadas de vistas, unicidad y concurrencia.
 - `manage.py`: herramienta para ejecutar comandos administrativos de Django.
 - `requirements.txt`: dependencias del proyecto.
-- `.env`: variables de configuración y conexión; no debe publicarse en el repositorio.
+- `.env.example`: plantilla de variables requeridas. Copiarla como `.env` y completar los valores locales; `.env` no debe publicarse.
 
 ## 6. Requisitos previos
 
@@ -105,7 +109,7 @@ python -m pip install -r requirements.txt
 
 ### 7.4. Configurar las variables de entorno
 
-Crear el archivo `.env` en la carpeta principal y definir las variables que requiere `config/settings.py` para conectarse a MySQL.
+Copiar `.env.example` como `.env` en la carpeta principal y completar allí la clave de Django y las variables de conexión a MySQL.
 
 No compartir ni publicar contraseñas o credenciales.
 
@@ -145,9 +149,7 @@ Las pruebas automatizadas se ejecutan mediante:
 python manage.py test votaciones
 ```
 
-En la revisión realizada el 23 de octubre de 2026, las diez pruebas de la aplicación finalizaron correctamente. También se verificó que Django no reportara errores en las comprobaciones generales del proyecto.
-
-Estos resultados corresponden al estado del código en esa fecha y pueden cambiar con futuras modificaciones.
+La suite incluye pruebas de vistas, unicidad y concurrencia. Para ejecutar la prueba de concurrencia, la configuración debe apuntar a MySQL; las pruebas se ejecutan en una base de datos de pruebas separada.
 
 ## 9. Base de datos y seguridad
 

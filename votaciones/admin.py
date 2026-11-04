@@ -74,6 +74,17 @@ class OpcionAdmin(admin.ModelAdmin):
 
 @admin.register(Voto)
 class VotoAdmin(admin.ModelAdmin):
-    list_display = ("usuario", "votacion", "opcion", "fecha_creacion")
-    list_filter = ("votacion", "fecha_creacion")
-    search_fields = ("usuario__username", "votacion__titulo")
+    list_display = (
+        "usuario",
+        "edicion",
+        "categoria",
+        "votacion",
+        "opcion",
+        "fecha_creacion",
+    )
+    list_filter = ("edicion", "categoria", "votacion", "fecha_creacion")
+    search_fields = (
+        "usuario__username",
+        "categoria__nombre",
+        "votacion__titulo",
+    )
