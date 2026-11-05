@@ -129,7 +129,7 @@ class UnicidadDeVotosTests(TestCase):
 
         respuesta = self.client.post(
             reverse("votar", args=[otra_votacion.pk]),
-            {"opcion": otra_opcion.pk},
+            {"opcion": otra_opcion.pk, "confirmar": "si"},
         )
 
         self.assertEqual(respuesta.status_code, 302)
@@ -155,7 +155,7 @@ class UnicidadDeVotosTests(TestCase):
 
         respuesta = self.client.post(
             reverse("votar", args=[otra_votacion.pk]),
-            {"opcion": otra_opcion.pk},
+            {"opcion": otra_opcion.pk, "confirmar": "si"},
         )
 
         self.assertEqual(respuesta.status_code, 302)

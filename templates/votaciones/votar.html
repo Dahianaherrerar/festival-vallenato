@@ -5,7 +5,7 @@
 {% block portada %}
 <header class="fv-encabezado">
     <div class="container">
-        <span class="fv-etiqueta mb-2">{{ votacion.categoria.nombre }}</span>
+        <span class="fv-etiqueta mb-2">Paso 1 de 2 · {{ votacion.categoria.nombre }}</span>
         <h1 class="mt-2">{{ votacion.titulo }}</h1>
         {% if votacion.descripcion %}<p>{{ votacion.descripcion }}</p>{% endif %}
     </div>
@@ -41,7 +41,7 @@
                         Solo puedes votar una vez en esta votación. Revisa tu elección antes de enviarla.
                     </p>
 
-                    <button type="submit" class="btn btn-fv w-100 btn-lg">Registrar mi voto</button>
+                    <button type="submit" class="btn btn-fv w-100 btn-lg">Continuar</button>
                 </form>
             </div>
         </div>

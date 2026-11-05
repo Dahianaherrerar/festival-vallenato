@@ -55,7 +55,7 @@ class VistasVotacionesTests(TestCase):
 
         respuesta = self.client.post(
             reverse("votar", args=[self.votacion.pk]),
-            {"opcion": self.opcion.pk},
+            {"opcion": self.opcion.pk, "confirmar": "si"},
         )
 
         self.assertEqual(respuesta.status_code, 302)
