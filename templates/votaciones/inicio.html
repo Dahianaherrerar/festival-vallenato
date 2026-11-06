@@ -18,7 +18,7 @@
                         <i class="bi bi-check2-square"></i> Ver votaciones
                     </a>
                     <a class="btn btn-outline-light btn-lg" href="{% url 'categorias' %}">
-                        Explorar categorías
+                        Explorar concursos
                     </a>
                 </div>
             </div>
@@ -35,11 +35,11 @@
 <section class="container py-5">
     <div class="text-center mb-4">
         <h2 class="fv-titulo">¿Cómo votar?</h2>
-        <p class="text-muted mb-0">Tres pasos sencillos para participar.</p>
+        <p class="text-muted mb-0">Cuatro pasos sencillos para participar.</p>
     </div>
 
     <div class="row g-4">
-        <div class="col-md-4">
+        <div class="col-md-6 col-lg-3">
             <article class="fv-tarjeta">
                 <div class="fv-tarjeta-cuerpo">
                     <span class="fv-icono-paso"><i class="bi bi-person-plus"></i></span>
@@ -50,24 +50,35 @@
                 </div>
             </article>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-6 col-lg-3">
             <article class="fv-tarjeta">
                 <div class="fv-tarjeta-cuerpo">
-                    <span class="fv-icono-paso"><i class="bi bi-music-note-list"></i></span>
-                    <h3>2. Elige una votación</h3>
+                    <span class="fv-icono-paso"><i class="bi bi-trophy"></i></span>
+                    <h3>2. Elige el concurso</h3>
                     <p class="fv-tarjeta-texto mb-0">
-                        Consulta las categorías del Festival y las votaciones abiertas.
+                        Explora los concursos del Festival y elige una de sus categorías.
                     </p>
                 </div>
             </article>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-6 col-lg-3">
+            <article class="fv-tarjeta">
+                <div class="fv-tarjeta-cuerpo">
+                    <span class="fv-icono-paso"><i class="bi bi-music-note-list"></i></span>
+                    <h3>3. Elige tu participante</h3>
+                    <p class="fv-tarjeta-texto mb-0">
+                        En la votación abierta de la categoría, selecciona a tu favorito.
+                    </p>
+                </div>
+            </article>
+        </div>
+        <div class="col-md-6 col-lg-3">
             <article class="fv-tarjeta">
                 <div class="fv-tarjeta-cuerpo">
                     <span class="fv-icono-paso"><i class="bi bi-check2-circle"></i></span>
-                    <h3>3. Registra tu voto</h3>
+                    <h3>4. Confirma tu voto</h3>
                     <p class="fv-tarjeta-texto mb-0">
-                        Selecciona tu favorito. Solo se permite un voto por votación.
+                        Revisa tu elección y confírmala. Solo puedes votar una vez por categoría.
                     </p>
                 </div>
             </article>

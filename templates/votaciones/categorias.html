@@ -1,47 +1,52 @@
 {% extends "base.html" %}
 
-{% block titulo %}Categorías{% endblock %}
+{% block titulo %}Concursos y categorías{% endblock %}
 
 {% block portada %}
 <header class="fv-encabezado">
     <div class="container">
-        <h1>Categorías del Festival</h1>
-        <p>Conoce las categorías habilitadas en esta edición.</p>
+        <h1>Concursos del Festival</h1>
+        <p>Conoce los concursos y sus categorías habilitadas en esta edición.</p>
     </div>
 </header>
 {% endblock %}
 
 {% block contenido %}
 <section class="container">
-    <div class="row g-4">
-        {% for categoria in categorias %}
-            <div class="col-sm-6 col-lg-4">
-                <article class="fv-tarjeta">
-                    <div class="fv-tarjeta-franja"></div>
-                    <div class="fv-tarjeta-cuerpo">
-                        {% if categoria.edicion %}
-                            <span class="fv-insignia fv-insignia-dorada align-self-start">
-                                Edición {{ categoria.edicion.anio }}
-                            </span>
-                        {% endif %}
-                        <h2>{{ categoria.nombre }}</h2>
-                        <p class="fv-tarjeta-texto">
-                            {{ categoria.descripcion|default:"Sin descripción por ahora." }}
-                        </p>
-                        <a class="btn btn-fv-borde mt-auto align-self-start" href="{% url 'votaciones' %}">
-                            Ver votaciones
-                        </a>
+    {% regroup categorias by concurso as concursos %}
+    {% for grupo in concursos %}
+        <div class="mb-5">
+            <h2 class="fv-titulo h3 mb-1"><i class="bi bi-trophy"></i> {{ grupo.grouper.nombre }}</h2>
+            {% if grupo.grouper.descripcion %}
+                <p class="text-muted">{{ grupo.grouper.descripcion }}</p>
+            {% endif %}
+            <div class="row g-4 mt-1">
+                {% for categoria in grupo.list %}
+                    <div class="col-sm-6 col-lg-4">
+                        <article class="fv-tarjeta">
+                            <div class="fv-tarjeta-franja"></div>
+                            <div class="fv-tarjeta-cuerpo">
+                                <span class="fv-insignia fv-insignia-dorada align-self-start">
+                                    {{ categoria.concurso.nombre }} · Edición {{ categoria.edicion.anio }}
+                                </span>
+                                <h3 class="h5">{{ categoria.nombre }}</h3>
+                                <p class="fv-tarjeta-texto">
+                                    {{ categoria.descripcion|default:"Sin descripción por ahora." }}
+                                </p>
+                                <a class="btn btn-fv-borde mt-auto align-self-start" href="{% url 'votaciones' %}?categoria={{ categoria.id }}">
+                                    Ver votaciones
+                                </a>
+                            </div>
+                        </article>
                     </div>
-                </article>
+                {% endfor %}
             </div>
-        {% empty %}
-            <div class="col-12">
-                <div class="fv-vacio">
-                    <i class="bi bi-collection"></i>
-                    Actualmente no hay categorías disponibles.
-                </div>
-            </div>
-        {% endfor %}
-    </div>
+        </div>
+    {% empty %}
+        <div class="fv-vacio">
+            <i class="bi bi-collection"></i>
+            Actualmente no hay concursos disponibles.
+        </div>
+    {% endfor %}
 </section>
 {% endblock %}

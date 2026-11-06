@@ -1,6 +1,6 @@
 
 from django.contrib import admin
-from .models import Edicion, Categoria, Votacion, Opcion, Voto
+from .models import Edicion, Concurso, Categoria, Votacion, Opcion, Voto
 from django.utils import timezone
 
 
@@ -11,11 +11,25 @@ class EdicionAdmin(admin.ModelAdmin):
     search_fields = ("nombre",)
 
 
+class CategoriaInline(admin.TabularInline):
+    model = Categoria
+    extra = 1
+    fields = ("nombre", "descripcion", "activa")
+
+
+@admin.register(Concurso)
+class ConcursoAdmin(admin.ModelAdmin):
+    list_display = ("nombre", "edicion", "activo")
+    list_filter = ("activo", "edicion")
+    search_fields = ("nombre",)
+    inlines = [CategoriaInline]
+
+
 @admin.register(Categoria)
 class CategoriaAdmin(admin.ModelAdmin):
-    list_display = ("nombre", "edicion", "activa")
-    list_filter = ("activa", "edicion")
-    search_fields = ("nombre",)
+    list_display = ("nombre", "concurso", "edicion", "activa")
+    list_filter = ("activa", "edicion", "concurso")
+    search_fields = ("nombre", "concurso__nombre")
 
 
 class OpcionInline(admin.TabularInline):

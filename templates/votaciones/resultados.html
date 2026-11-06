@@ -5,7 +5,7 @@
 {% block portada %}
 <header class="fv-encabezado">
     <div class="container">
-        <span class="fv-etiqueta mb-2">Resultados · {{ votacion.categoria.nombre }}</span>
+        <span class="fv-etiqueta mb-2">Resultados · {{ votacion.categoria.concurso.nombre }} · {{ votacion.categoria.nombre }}</span>
         <h1 class="mt-2">{{ votacion.titulo }}</h1>
         {% if votacion.descripcion %}<p>{{ votacion.descripcion }}</p>{% endif %}
     </div>

@@ -14,15 +14,78 @@ class Edicion(models.Model):
         return f"{self.nombre} ({self.anio})"
 
 
+class Concurso(models.Model):
+    """Concurso de una edición (ej. Piquería), que agrupa sus categorías."""
+
+    NOMBRE_GENERAL = "Concurso general"
+
+    edicion = models.ForeignKey(
+        Edicion,
+        on_delete=models.PROTECT,
+        related_name="concursos",
+    )
+    nombre = models.CharField(max_length=150)
+    descripcion = models.TextField(blank=True)
+    activo = models.BooleanField(default=True)
+
+    class Meta:
+        verbose_name = "concurso"
+        verbose_name_plural = "concursos"
+        ordering = ["edicion", "nombre"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["edicion", "nombre"],
+                name="concurso_unico_por_edicion",
+            )
+        ]
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        # Si el concurso cambia de edición, sus categorías cambian con él.
+        self.categorias.exclude(edicion=self.edicion).update(edicion=self.edicion)
+
+    def __str__(self):
+        return f"{self.nombre} ({self.edicion.anio})"
+
+
 class Categoria(models.Model):
+    concurso = models.ForeignKey(
+        Concurso,
+        on_delete=models.PROTECT,
+        related_name="categorias",
+    )
+    # La edición se copia del concurso; se conserva para que la regla
+    # «un voto por usuario, categoría y edición» y las consultas existentes
+    # sigan funcionando igual.
     edicion = models.ForeignKey(
         Edicion,
         on_delete=models.PROTECT,
         related_name="categorias",
+        editable=False,
     )
     nombre = models.CharField(max_length=100)
     descripcion = models.TextField(blank=True)
     activa = models.BooleanField(default=True)
+
+    def sincronizar_edicion(self):
+        if self.concurso_id:
+            self.edicion_id = self.concurso.edicion_id
+
+    def clean_fields(self, exclude=None):
+        self.sincronizar_edicion()
+        super().clean_fields(exclude=exclude)
+
+    def save(self, *args, **kwargs):
+        # Compatibilidad: si una categoría se crea solo con su edición (código
+        # o pruebas anteriores al modelo Concurso), queda en el concurso
+        # general de esa edición.
+        if not self.concurso_id and self.edicion_id:
+            self.concurso, _ = Concurso.objects.get_or_create(
+                edicion_id=self.edicion_id,
+                nombre=Concurso.NOMBRE_GENERAL,
+            )
+        self.sincronizar_edicion()
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.nombre

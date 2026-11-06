@@ -7,7 +7,7 @@
     <div class="container">
         <span class="fv-etiqueta mb-2">Paso 2 de 2 · Confirmación</span>
         <h1 class="mt-2">{{ votacion.titulo }}</h1>
-        <p>{{ votacion.categoria.nombre }} · Edición {{ votacion.categoria.edicion.anio }}</p>
+        <p>{{ votacion.categoria.concurso.nombre }} · {{ votacion.categoria.nombre }} · Edición {{ votacion.categoria.edicion.anio }}</p>
     </div>
 </header>
 {% endblock %}
