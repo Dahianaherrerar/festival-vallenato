@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block titulo %}Recuperar contraseña{% endblock %}
+
+{% block contenido %}
+<section class="container py-5">
+    <div class="fv-formulario">
+        <div class="text-center mb-4">
+            <span class="fv-sello mb-3"><i class="bi bi-key"></i></span>
+            <h1 class="h3">¿Olvidaste tu contraseña?</h1>
+            <p class="text-muted mb-0">
+                Escribe el correo con el que te registraste y te enviaremos un
+                enlace para crear una nueva contraseña.
+            </p>
+        </div>
+
+        <div class="fv-tarjeta">
+            <div class="fv-tarjeta-franja"></div>
+            <div class="fv-tarjeta-cuerpo">
+                <form method="post" novalidate>
+                    {% csrf_token %}
+
+                    {% for campo in form %}
+                        <div class="mb-3">
+                            <label for="{{ campo.id_for_label }}">{{ campo.label }}</label>
+                            {{ campo }}
+                            {% if campo.errors %}
+                                <div class="fv-error">{{ campo.errors }}</div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+
+                    <button type="submit" class="btn btn-fv w-100 btn-lg mt-2">Restablecer</button>
+                </form>
+            </div>
+        </div>
+
+        <p class="text-center mt-3 mb-0">
+            <a href="{% url 'login' %}"><i class="bi bi-arrow-left"></i> Volver a iniciar sesión</a>
+        </p>
+    </div>
+</section>
+{% endblock %}

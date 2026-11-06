@@ -24,14 +24,16 @@ Desarrollar una plataforma web que permita organizar procesos de votación de ma
 
 - Registro de usuarios.
 - Inicio y cierre de sesión.
-- Consulta de categorías activas.
+- Recuperación de contraseña por correo electrónico («¿Olvidaste tu contraseña?»).
+- Estructura Edición → Concurso → Categoría → Votación → Participante (por ejemplo: 2026 → Piquería → Piquería Infantil → Opción A, B y C).
+- Consulta de concursos y sus categorías activas.
 - Consulta de votaciones habilitadas.
 - Registro de votos para usuarios autenticados.
 - Restricción para permitir un voto por usuario, categoría y edición, incluso si hay varios subeventos.
 - Validación de las opciones disponibles para cada votación.
 - Control del periodo de inicio y finalización de las votaciones.
 - Consulta de resultados una vez finalizado el periodo correspondiente.
-- Administración de ediciones, categorías, votaciones, opciones y votos desde Django Admin.
+- Administración de ediciones, concursos, categorías, votaciones, opciones y votos desde Django Admin.
 - Acciones administrativas para abrir y cerrar votaciones.
 - Pruebas automatizadas del comportamiento principal del sistema.
 
@@ -50,8 +52,11 @@ festival_vallenato/
 │   ├── migrations/
 │   ├── tests/
 │   │   ├── test_concurrencia.py
+│   │   ├── test_concurso.py
+│   │   ├── test_recuperar_clave.py
 │   │   ├── test_unicidad.py
-│   │   └── test_vistas.py
+│   │   ├── test_vistas.py
+│   │   └── test_votar.py
 │   ├── admin.py
 │   ├── forms.py
 │   ├── models.py
@@ -113,6 +118,26 @@ Copiar `.env.example` como `.env` en la carpeta principal y completar allí la c
 
 No compartir ni publicar contraseñas o credenciales.
 
+#### Correo para recuperar la contraseña (opcional)
+
+La opción «¿Olvidaste tu contraseña?» envía un correo con un enlace para crear una nueva contraseña. El enlace sirve una sola vez y vence en 1 hora.
+
+- **Sin configurar nada:** el correo no se envía; aparece en la terminal donde corre `runserver`. Copia el enlace desde ahí y ábrelo en el navegador.
+- **Con Gmail:** agrega estas dos líneas al final de tu archivo `.env` (nunca al `.env.example` ni a otro archivo del repositorio):
+
+```text
+EMAIL_HOST_USER=tucorreo@gmail.com
+EMAIL_HOST_PASSWORD=abcdefghijklmnop
+```
+
+`EMAIL_HOST_PASSWORD` no es la contraseña normal de Gmail. Es una **contraseña de aplicación** de 16 letras, sin espacios, que se crea en https://myaccount.google.com/apppasswords y requiere tener activa la verificación en 2 pasos. El equipo comparte la cuenta de pruebas por un canal privado; no se publica en el repositorio.
+
+Para comprobar la conexión con Gmail:
+
+```powershell
+python manage.py sendtestemail tucorreo@gmail.com
+```
+
 ### 7.5. Aplicar las migraciones
 
 ```powershell
@@ -149,7 +174,7 @@ Las pruebas automatizadas se ejecutan mediante:
 python manage.py test votaciones
 ```
 
-La suite incluye pruebas de vistas, unicidad y concurrencia. Para ejecutar la prueba de concurrencia, la configuración debe apuntar a MySQL; las pruebas se ejecutan en una base de datos de pruebas separada.
+La suite incluye pruebas de vistas, flujo de votación, concursos, recuperación de contraseña, unicidad y concurrencia. Para ejecutar la prueba de concurrencia, la configuración debe apuntar a MySQL; las pruebas se ejecutan en una base de datos de pruebas separada.
 
 ## 9. Base de datos y seguridad
 

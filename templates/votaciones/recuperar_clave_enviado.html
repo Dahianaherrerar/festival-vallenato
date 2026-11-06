@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block titulo %}Revisa tu correo{% endblock %}
+
+{% block contenido %}
+<section class="container py-5">
+    <div class="fv-formulario">
+        <div class="fv-tarjeta">
+            <div class="fv-tarjeta-franja"></div>
+            <div class="fv-tarjeta-cuerpo text-center">
+                <span class="fv-icono-paso mx-auto mb-3"><i class="bi bi-envelope-check"></i></span>
+                <h1 class="h4">Revisa tu correo</h1>
+                <p class="fv-tarjeta-texto">
+                    Si el correo que escribiste está registrado, en unos minutos
+                    recibirás un mensaje con el enlace para crear una nueva contraseña.
+                </p>
+                <p class="fv-tarjeta-texto small">
+                    El enlace sirve una sola vez y vence en 1 hora. Si no lo ves,
+                    revisa la carpeta de spam o correo no deseado.
+                </p>
+                <a class="btn btn-fv-borde mt-2" href="{% url 'login' %}">Volver a iniciar sesión</a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
