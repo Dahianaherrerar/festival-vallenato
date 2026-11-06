@@ -174,6 +174,40 @@ class CP05CategoriaNoHabilitadaTests(BaseVotarTests):
         )
 
 
+class ListaVotacionesHabilitadasTests(BaseVotarTests):
+    """La lista pública solo muestra votaciones en las que hoy se puede votar."""
+
+    def test_lista_oculta_votaciones_no_habilitadas(self):
+        ahora = timezone.now()
+        self.crear_votacion(
+            self.categoria,
+            "Votación vencida",
+            fecha_inicio=ahora - timedelta(days=5),
+            fecha_fin=ahora - timedelta(days=1),
+        )
+        self.crear_votacion(
+            self.categoria,
+            "Votación futura",
+            fecha_inicio=ahora + timedelta(days=1),
+            fecha_fin=ahora + timedelta(days=5),
+        )
+        self.crear_votacion(self.categoria, "Votación cerrada", abierta=False)
+        categoria_inactiva = Categoria.objects.create(
+            edicion=self.edicion,
+            nombre="Categoría inactiva",
+            activa=False,
+        )
+        self.crear_votacion(categoria_inactiva, "Votación de categoría inactiva")
+
+        respuesta = self.client.get(reverse("votaciones"))
+
+        self.assertContains(respuesta, "Votación principal")
+        self.assertNotContains(respuesta, "Votación vencida")
+        self.assertNotContains(respuesta, "Votación futura")
+        self.assertNotContains(respuesta, "Votación cerrada")
+        self.assertNotContains(respuesta, "Votación de categoría inactiva")
+
+
 class CP06OpcionDeOtraCategoriaTests(BaseVotarTests):
     """CP-06: una opción que pertenece a otra categoría se rechaza."""
 

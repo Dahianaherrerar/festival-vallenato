@@ -30,11 +30,16 @@ def categorias(request):
 
 
 def votaciones(request):
+    # Solo se listan las votaciones en las que hoy se puede votar:
+    # abiertas, de categoría y edición activas, y dentro de sus fechas.
+    ahora = timezone.now()
     lista_votaciones = (
         Votacion.objects.filter(
             abierta=True,
             categoria__activa=True,
             categoria__edicion__activa=True,
+            fecha_inicio__lte=ahora,
+            fecha_fin__gte=ahora,
         )
         .select_related("categoria", "categoria__edicion")
         .prefetch_related("opciones")
