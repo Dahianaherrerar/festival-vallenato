@@ -16,6 +16,7 @@
 
     <!-- Estilos propios del Festival -->
     <link rel="stylesheet" href="{% static 'css/festival.css' %}">
+    {% block estilos %}{% endblock %}
 </head>
 <body>
     {% with seccion=request.resolver_match.url_name %}
@@ -46,6 +47,13 @@
                     <li class="nav-item">
                         <a class="nav-link {% if seccion == 'votaciones' or seccion == 'votar' or seccion == 'resultados' %}active{% endif %}" href="{% url 'votaciones' %}">Votaciones</a>
                     </li>
+                    {% if user.is_staff %}
+                        <li class="nav-item">
+                            <a class="nav-link {% if seccion and 'panel_' in seccion %}active{% endif %}" href="{% url 'panel_inicio' %}">
+                                <i class="bi bi-gear"></i> Administración
+                            </a>
+                        </li>
+                    {% endif %}
                 </ul>
 
                 <div class="d-flex flex-column flex-lg-row align-items-lg-center gap-2 py-3 py-lg-0">

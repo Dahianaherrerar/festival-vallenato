@@ -1,0 +1,92 @@
+{% extends "panel/base_panel.html" %}
+
+{% block titulo %}{{ seccion_panel.plural }} · Administración{% endblock %}
+{% block encabezado %}{{ seccion_panel.plural }}{% endblock %}
+{% block subtitulo %}{{ seccion_panel.descripcion }}{% endblock %}
+
+{% block panel %}
+<div class="fv-tarjeta">
+    <div class="fv-tarjeta-cuerpo">
+        <form method="get" class="row g-2 align-items-end mb-3">
+            <div class="col-md">
+                <label class="small fw-semibold" for="buscar">Buscar</label>
+                <input id="buscar" type="search" name="q" value="{{ texto }}" class="form-control" placeholder="Escribe un nombre…">
+            </div>
+            {% if seccion_panel.filtro %}
+                <div class="col-md">
+                    <label class="small fw-semibold" for="filtro">{{ seccion_panel.filtro.1 }}</label>
+                    <select id="filtro" name="{{ seccion_panel.filtro.0 }}" class="form-select">
+                        <option value="">Todas</option>
+                        {% for valor, etiqueta in opciones_filtro %}
+                            <option value="{{ valor }}" {% if filtro_actual == valor %}selected{% endif %}>{{ etiqueta }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            {% endif %}
+            <div class="col-md-auto d-flex gap-2">
+                <button type="submit" class="btn btn-fv-borde"><i class="bi bi-funnel"></i> Filtrar</button>
+                <a class="btn btn-fv" href="{% url 'panel_crear' clave %}{% if filtro_actual %}?{{ seccion_panel.filtro.0 }}={{ filtro_actual }}{% endif %}">
+                    <i class="bi bi-plus-lg"></i> Nuevo
+                </a>
+            </div>
+        </form>
+
+        {% if filas %}
+            <div class="table-responsive">
+                <table class="table panel-tabla">
+                    <thead>
+                        <tr>
+                            {% for titulo, funcion in seccion_panel.columnas %}<th>{{ titulo }}</th>{% endfor %}
+                            <th>Estado</th>
+                            <th class="text-end">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for fila in filas %}
+                            <tr>
+                                {% for titulo, valor in fila.celdas %}
+                                    <td data-titulo="{{ titulo }}">{{ valor }}</td>
+                                {% endfor %}
+                                <td data-titulo="Estado">
+                                    {% if fila.activo %}
+                                        <span class="panel-estado panel-estado-si">{{ seccion_panel.textos_estado.0 }}</span>
+                                    {% else %}
+                                        <span class="panel-estado panel-estado-no">{{ seccion_panel.textos_estado.1 }}</span>
+                                    {% endif %}
+                                </td>
+                                <td class="panel-celda-acciones">
+                                    <div class="panel-acciones">
+                                        <a class="btn btn-sm btn-outline-secondary" href="{% url 'panel_editar' clave fila.objeto.pk %}">
+                                            <i class="bi bi-pencil"></i> Editar
+                                        </a>
+                                        <form method="post" action="{% url 'panel_estado' clave fila.objeto.pk %}">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="filtros" value="{{ request.GET.urlencode }}">
+                                            <button type="submit" class="btn btn-sm btn-outline-secondary">
+                                                {% if fila.activo %}
+                                                    <i class="bi bi-toggle-off"></i> {{ seccion_panel.textos_estado.3 }}
+                                                {% else %}
+                                                    <i class="bi bi-toggle-on"></i> {{ seccion_panel.textos_estado.2 }}
+                                                {% endif %}
+                                            </button>
+                                        </form>
+                                        <a class="btn btn-sm btn-outline-danger" href="{% url 'panel_eliminar' clave fila.objeto.pk %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}">
+                                            <i class="bi bi-trash"></i> Eliminar
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <p class="text-muted small mt-3 mb-0">{{ filas|length }} registro{{ filas|length|pluralize }}.</p>
+        {% else %}
+            <div class="fv-vacio">
+                <i class="bi bi-inbox"></i>
+                No hay registros{% if texto or filtro_actual %} con ese filtro{% endif %}.
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

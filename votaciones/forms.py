@@ -90,7 +90,8 @@ class VotoForm(forms.Form):
 
         if votacion is not None:
             self.fields["opcion"].queryset = Opcion.objects.filter(
-                votacion=votacion
+                votacion=votacion,
+                activo=True,
             )
 
     def clean_opcion(self):

@@ -1,0 +1,30 @@
+{% extends "panel/base_panel.html" %}
+
+{% block titulo %}Eliminar · Administración{% endblock %}
+{% block encabezado %}Eliminar {{ seccion_panel.singular }}{% endblock %}
+{% block subtitulo %}Esta acción no se puede deshacer.{% endblock %}
+
+{% block panel %}
+<div class="row justify-content-center">
+    <div class="col-lg-7">
+        <div class="fv-tarjeta">
+            <div class="fv-tarjeta-franja"></div>
+            <div class="fv-tarjeta-cuerpo text-center">
+                <span class="fv-icono-paso mx-auto mb-3"><i class="bi bi-trash"></i></span>
+                <h2 class="h5">¿Eliminar {{ seccion_panel.singular }} «{{ nombre }}»?</h2>
+                <p class="fv-tarjeta-texto">
+                    Si tiene datos asociados (por ejemplo votos, categorías o
+                    participantes), el sistema no lo eliminará para proteger la
+                    información. En ese caso puedes desactivarlo.
+                </p>
+                <form method="post" class="d-flex flex-column flex-sm-row gap-2 justify-content-center mt-3">
+                    {% csrf_token %}
+                    <input type="hidden" name="filtros" value="{{ request.GET.urlencode }}">
+                    <button type="submit" class="btn btn-danger"><i class="bi bi-trash"></i> Sí, eliminar</button>
+                    <a class="btn btn-fv-borde" href="{% url 'panel_lista' clave %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}">Cancelar</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

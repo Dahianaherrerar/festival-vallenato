@@ -4,10 +4,10 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
 
 from .forms import RegistroForm, VotoForm
-from .models import Categoria, Votacion, Voto
+from .models import Categoria, Opcion, Votacion, Voto
 from django.contrib import messages
 from django.db import IntegrityError, transaction
-from django.db.models import Count
+from django.db.models import Count, Prefetch
 from django.utils import timezone
 
 
@@ -48,7 +48,9 @@ def votaciones(request):
             fecha_fin__gte=ahora,
         )
         .select_related("categoria__concurso", "categoria__edicion")
-        .prefetch_related("opciones")
+        .prefetch_related(
+            Prefetch("opciones", queryset=Opcion.objects.filter(activo=True))
+        )
         .order_by("fecha_inicio")
     )
 

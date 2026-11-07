@@ -1,0 +1,46 @@
+{% extends "panel/base_panel.html" %}
+
+{% block titulo %}{{ seccion_panel.plural }} · Administración{% endblock %}
+{% block encabezado %}{{ titulo }}{% endblock %}
+{% block subtitulo %}Los campos marcados con * son obligatorios.{% endblock %}
+
+{% block panel %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="fv-tarjeta">
+            <div class="fv-tarjeta-franja"></div>
+            <div class="fv-tarjeta-cuerpo panel-formulario">
+                {% if form.non_field_errors %}
+                    <div class="alert alert-danger py-2 small" role="alert">{{ form.non_field_errors }}</div>
+                {% endif %}
+
+                <form method="post" novalidate>
+                    {% csrf_token %}
+
+                    {% for campo in form %}
+                        {% if campo.widget_type == "checkbox" %}
+                            <div class="form-check form-switch mb-3">
+                                {{ campo }}
+                                <label class="form-check-label" for="{{ campo.id_for_label }}">{{ campo.label }}</label>
+                                {% if campo.errors %}<div class="fv-error">{{ campo.errors }}</div>{% endif %}
+                            </div>
+                        {% else %}
+                            <div class="mb-3">
+                                <label for="{{ campo.id_for_label }}">{{ campo.label }}{% if campo.field.required %} *{% endif %}</label>
+                                {{ campo }}
+                                {% if campo.errors %}<div class="fv-error">{{ campo.errors }}</div>{% endif %}
+                                {% if campo.help_text %}<div class="fv-ayuda">{{ campo.help_text }}</div>{% endif %}
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+
+                    <div class="d-flex flex-column flex-sm-row gap-2 mt-4">
+                        <button type="submit" class="btn btn-fv"><i class="bi bi-check-lg"></i> Guardar</button>
+                        <a class="btn btn-fv-borde" href="{% url 'panel_lista' clave %}">Cancelar</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

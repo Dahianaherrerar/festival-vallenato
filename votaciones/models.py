@@ -132,6 +132,8 @@ class Opcion(models.Model):
     )
     nombre = models.CharField(max_length=150)
     descripcion = models.TextField(blank=True)
+    # Un participante desactivado no aparece en el formulario de voto.
+    activo = models.BooleanField(default=True)
 
     def __str__(self):
         return self.nombre

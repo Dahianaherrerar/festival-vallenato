@@ -1,0 +1,135 @@
+/* Panel de administración (Administración, Usuarios e Informes).
+   Usa los mismos colores del sitio definidos en festival.css. */
+
+.panel-pestanas {
+    display: flex;
+    gap: 0.5rem;
+    overflow-x: auto;
+    padding-bottom: 0.25rem;
+    margin-bottom: 1.5rem;
+}
+
+.panel-pestanas a {
+    white-space: nowrap;
+    padding: 0.45rem 1rem;
+    border-radius: 999px;
+    border: 1px solid var(--fv-borde);
+    background: var(--fv-blanco);
+    color: var(--fv-gris-oscuro);
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.92rem;
+}
+
+.panel-pestanas a:hover {
+    border-color: var(--fv-rojo);
+    color: var(--fv-rojo);
+}
+
+.panel-pestanas a.activa {
+    background: var(--fv-rojo);
+    border-color: var(--fv-rojo);
+    color: var(--fv-blanco);
+}
+
+.panel-tarjeta-numero {
+    font-family: "Montserrat", sans-serif;
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: var(--fv-negro);
+    line-height: 1;
+}
+
+.panel-tabla {
+    margin-bottom: 0;
+}
+
+.panel-tabla th {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--fv-gris);
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.panel-tabla td {
+    vertical-align: middle;
+}
+
+.panel-estado {
+    display: inline-block;
+    padding: 0.2rem 0.65rem;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.panel-estado-si {
+    background: #e6f4ea;
+    color: #1e7b34;
+}
+
+.panel-estado-no {
+    background: #f1f1f1;
+    color: var(--fv-gris);
+}
+
+.panel-acciones {
+    display: flex;
+    gap: 0.35rem;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+}
+
+.panel-acciones form {
+    margin: 0;
+}
+
+.panel-formulario label {
+    font-weight: 600;
+    font-size: 0.92rem;
+    margin-bottom: 0.3rem;
+}
+
+.panel-formulario .form-check-label {
+    font-weight: 500;
+}
+
+/* En celular la tabla se convierte en tarjetas apiladas. */
+@media (max-width: 767.98px) {
+    .panel-tabla thead {
+        display: none;
+    }
+
+    .panel-tabla tr {
+        display: block;
+        padding: 0.85rem 1rem;
+        border-bottom: 1px solid var(--fv-borde);
+    }
+
+    .panel-tabla td {
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+        border: 0;
+        padding: 0.2rem 0;
+        text-align: right;
+    }
+
+    .panel-tabla td::before {
+        content: attr(data-titulo);
+        font-weight: 600;
+        color: var(--fv-gris);
+        text-align: left;
+    }
+
+    .panel-tabla td.panel-celda-acciones::before {
+        content: none;
+    }
+
+    .panel-acciones {
+        justify-content: flex-start;
+        padding-top: 0.4rem;
+    }
+}

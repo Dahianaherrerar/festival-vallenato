@@ -33,6 +33,7 @@ Desarrollar una plataforma web que permita organizar procesos de votación de ma
 - Validación de las opciones disponibles para cada votación.
 - Control del periodo de inicio y finalización de las votaciones.
 - Consulta de resultados una vez finalizado el periodo correspondiente.
+- Sección **Administración** dentro de la aplicación (`/administracion/`, solo para usuarios administradores): crear, editar, activar o desactivar y eliminar ediciones, concursos, categorías, votaciones y participantes. Lo que ya tiene votos no se puede eliminar, solo desactivar.
 - Administración de ediciones, concursos, categorías, votaciones, opciones y votos desde Django Admin.
 - Acciones administrativas para abrir y cerrar votaciones.
 - Pruebas automatizadas del comportamiento principal del sistema.
@@ -47,6 +48,12 @@ festival_vallenato/
 │   ├── settings.py
 │   ├── urls.py
 │   └── ...
+├── panel/              # Administración (y luego Usuarios e Informes)
+│   ├── tests/
+│   ├── forms.py
+│   ├── permisos.py
+│   ├── urls.py
+│   └── views.py
 ├── templates/
 ├── votaciones/
 │   ├── migrations/
@@ -171,10 +178,10 @@ http://127.0.0.1:8000/admin/
 Las pruebas automatizadas se ejecutan mediante:
 
 ```powershell
-python manage.py test votaciones
+python manage.py test
 ```
 
-La suite incluye pruebas de vistas, flujo de votación, concursos, recuperación de contraseña, unicidad y concurrencia. Para ejecutar la prueba de concurrencia, la configuración debe apuntar a MySQL; las pruebas se ejecutan en una base de datos de pruebas separada.
+La suite incluye pruebas de vistas, flujo de votación, concursos, recuperación de contraseña, unicidad, concurrencia (app `votaciones`) y de la sección Administración (app `panel`). Para ejecutar la prueba de concurrencia, la configuración debe apuntar a MySQL; las pruebas se ejecutan en una base de datos de pruebas separada.
 
 ## 9. Base de datos y seguridad
 
