@@ -1,0 +1,142 @@
+{% extends "panel/base_panel.html" %}
+
+{% block titulo %}Usuarios{% endblock %}
+{% block etiqueta %}<i class="bi bi-person-gear"></i> Usuarios{% endblock %}
+{% block encabezado %}Usuarios registrados{% endblock %}
+{% block subtitulo %}Consulta quién se ha registrado y ayúdale a recuperar el acceso a su cuenta.{% endblock %}
+{% block pestanas %}{% endblock %}
+
+{% block panel %}
+<div class="row g-3 mb-4">
+    <div class="col-6 col-lg-3">
+        <div class="panel-resumen"><span class="panel-tarjeta-numero">{{ resumen.total }}</span> Usuarios</div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="panel-resumen"><span class="panel-tarjeta-numero">{{ resumen.votantes }}</span> Votantes</div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="panel-resumen"><span class="panel-tarjeta-numero">{{ resumen.administradores }}</span> Administradores</div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="panel-resumen"><span class="panel-tarjeta-numero">{{ resumen.inactivos }}</span> Desactivados</div>
+    </div>
+</div>
+
+<div class="alert alert-light border small d-flex gap-2" role="note">
+    <i class="bi bi-shield-lock fs-5"></i>
+    <div>
+        Por seguridad nadie puede ver las contraseñas: se guardan cifradas.
+        Con <strong>Enviar enlace</strong> el usuario recibe en su correo un enlace para crear una nueva
+        contraseña (sirve una vez y vence en 1 hora).
+        {% if correo_por_terminal %}
+            <br><strong>Gmail no está configurado</strong> en el archivo <code>.env</code>: el correo aparecerá en la terminal donde corre el servidor.
+        {% endif %}
+    </div>
+</div>
+
+<div class="fv-tarjeta">
+    <div class="fv-tarjeta-cuerpo">
+        <form method="get" class="row g-2 align-items-end mb-3">
+            <div class="col-md">
+                <label class="small fw-semibold" for="buscar">Buscar</label>
+                <input id="buscar" type="search" name="q" value="{{ texto }}" class="form-control" placeholder="Usuario, nombre o correo…">
+            </div>
+            <div class="col-6 col-md-3">
+                <label class="small fw-semibold" for="tipo">Tipo</label>
+                <select id="tipo" name="tipo" class="form-select">
+                    <option value="">Todos</option>
+                    <option value="votantes" {% if tipo == "votantes" %}selected{% endif %}>Votantes</option>
+                    <option value="administradores" {% if tipo == "administradores" %}selected{% endif %}>Administradores</option>
+                </select>
+            </div>
+            <div class="col-6 col-md-3">
+                <label class="small fw-semibold" for="estado">Estado</label>
+                <select id="estado" name="estado" class="form-select">
+                    <option value="">Todos</option>
+                    <option value="activos" {% if estado == "activos" %}selected{% endif %}>Activos</option>
+                    <option value="inactivos" {% if estado == "inactivos" %}selected{% endif %}>Desactivados</option>
+                </select>
+            </div>
+            <div class="col-md-auto">
+                <button type="submit" class="btn btn-fv-borde w-100"><i class="bi bi-funnel"></i> Filtrar</button>
+            </div>
+        </form>
+
+        {% if usuarios %}
+            <div class="table-responsive">
+                <table class="table panel-tabla panel-tabla-ancha">
+                    <thead>
+                        <tr>
+                            <th>Usuario</th>
+                            <th>Correo</th>
+                            <th>Tipo</th>
+                            <th>Registro</th>
+                            <th>Último ingreso</th>
+                            <th>Votos</th>
+                            <th>Estado</th>
+                            <th class="text-end">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for usuario in usuarios %}
+                            <tr>
+                                <td data-titulo="Usuario">
+                                    <span class="fw-semibold">{{ usuario.username }}</span>
+                                    {% if usuario.get_full_name %}<br class="d-none d-md-inline"><small class="text-muted">{{ usuario.get_full_name }}</small>{% endif %}
+                                </td>
+                                <td data-titulo="Correo" class="panel-correo">
+                                    {% if usuario.email %}{{ usuario.email }}{% else %}<span class="text-muted">Sin correo</span>{% endif %}
+                                </td>
+                                <td data-titulo="Tipo">
+                                    {% if usuario.is_superuser %}Superusuario{% elif usuario.is_staff %}Administrador{% else %}Votante{% endif %}
+                                </td>
+                                <td data-titulo="Registro">{{ usuario.date_joined|date:"d/m/Y" }}</td>
+                                <td data-titulo="Último ingreso">{{ usuario.last_login|date:"d/m/Y H:i"|default:"Nunca" }}</td>
+                                <td data-titulo="Votos">{{ usuario.total_votos }}</td>
+                                <td data-titulo="Estado">
+                                    {% if usuario.is_active %}
+                                        <span class="panel-estado panel-estado-si">Activo</span>
+                                    {% else %}
+                                        <span class="panel-estado panel-estado-no">Desactivado</span>
+                                    {% endif %}
+                                </td>
+                                <td class="panel-celda-acciones">
+                                    <div class="panel-acciones">
+                                        <form method="post" action="{% url 'usuarios_enlace' usuario.pk %}">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="filtros" value="{{ request.GET.urlencode }}">
+                                            <button type="submit" class="btn btn-sm btn-outline-secondary"
+                                                    {% if not usuario.email or not usuario.is_active %}disabled title="Necesita un correo y la cuenta activa"{% endif %}>
+                                                <i class="bi bi-envelope"></i> Enviar enlace
+                                            </button>
+                                        </form>
+                                        {% if usuario.pk != request.user.pk %}
+                                            <form method="post" action="{% url 'usuarios_estado' usuario.pk %}">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="filtros" value="{{ request.GET.urlencode }}">
+                                                <button type="submit" class="btn btn-sm {% if usuario.is_active %}btn-outline-danger{% else %}btn-outline-secondary{% endif %}">
+                                                    {% if usuario.is_active %}
+                                                        <i class="bi bi-person-x"></i> Desactivar
+                                                    {% else %}
+                                                        <i class="bi bi-person-check"></i> Activar
+                                                    {% endif %}
+                                                </button>
+                                            </form>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <p class="text-muted small mt-3 mb-0">{{ usuarios|length }} usuario{{ usuarios|length|pluralize }}.</p>
+        {% else %}
+            <div class="fv-vacio">
+                <i class="bi bi-inbox"></i>
+                No hay usuarios{% if texto or tipo or estado %} con ese filtro{% endif %}.
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

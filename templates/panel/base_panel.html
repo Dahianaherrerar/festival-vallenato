@@ -8,7 +8,7 @@
 {% block portada %}
 <header class="fv-encabezado">
     <div class="container">
-        <span class="fv-etiqueta mb-2"><i class="bi bi-gear"></i> Administración</span>
+        <span class="fv-etiqueta mb-2">{% block etiqueta %}<i class="bi bi-gear"></i> Administración{% endblock %}</span>
         <h1 class="mt-2">{% block encabezado %}Administración{% endblock %}</h1>
         <p>{% block subtitulo %}Gestiona los datos del Festival sin entrar al Django Admin.{% endblock %}</p>
     </div>
@@ -17,6 +17,7 @@
 
 {% block contenido %}
 <section class="container py-4">
+    {% block pestanas %}
     <nav class="panel-pestanas" aria-label="Secciones de Administración">
         <a href="{% url 'panel_inicio' %}" class="{% if not clave %}activa{% endif %}">
             <i class="bi bi-grid"></i> Resumen
@@ -27,6 +28,7 @@
             </a>
         {% endfor %}
     </nav>
+    {% endblock %}
 
     {% block panel %}{% endblock %}
 </section>

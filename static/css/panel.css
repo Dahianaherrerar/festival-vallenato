@@ -40,8 +40,32 @@
     line-height: 1;
 }
 
+.panel-resumen {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    padding: 0.9rem 1rem;
+    background: var(--fv-blanco);
+    border: 1px solid var(--fv-borde);
+    border-left: 4px solid var(--fv-rojo);
+    border-radius: 0.6rem;
+    color: var(--fv-gris);
+    font-weight: 500;
+}
+
+.panel-resumen .panel-tarjeta-numero {
+    font-size: 1.6rem;
+}
+
 .panel-tabla {
     margin-bottom: 0;
+}
+
+/* Tablas con muchas columnas: en tableta se desplazan de lado en vez de apretarse. */
+@media (min-width: 768px) {
+    .panel-tabla-ancha {
+        min-width: 960px;
+    }
 }
 
 .panel-tabla th {
@@ -122,10 +146,15 @@
         font-weight: 600;
         color: var(--fv-gris);
         text-align: left;
+        flex-shrink: 0;
     }
 
     .panel-tabla td.panel-celda-acciones::before {
         content: none;
+    }
+
+    .panel-tabla td.panel-correo {
+        overflow-wrap: anywhere;
     }
 
     .panel-acciones {

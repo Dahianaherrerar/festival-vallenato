@@ -1,6 +1,6 @@
 {% autoescape off %}Hola, {{ user.get_username }}:
 
-Recibimos una solicitud para restablecer la contraseña de tu cuenta en el sistema de votaciones del 60° Festival de la Leyenda Vallenata.
+{% if desde_administracion %}Un administrador del sistema de votaciones del 60° Festival de la Leyenda Vallenata te envió este enlace para que crees una nueva contraseña.{% else %}Recibimos una solicitud para restablecer la contraseña de tu cuenta en el sistema de votaciones del 60° Festival de la Leyenda Vallenata.{% endif %}
 
 Para crear una nueva contraseña, abre este enlace:
 
