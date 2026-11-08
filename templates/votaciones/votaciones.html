@@ -5,8 +5,17 @@
 {% block portada %}
 <header class="fv-encabezado">
     <div class="container">
-        <h1>Votaciones abiertas</h1>
-        <p>Consulta las votaciones disponibles y sus participantes.</p>
+        {% if categoria %}
+            <span class="fv-etiqueta mb-2">{{ categoria.concurso.nombre }}</span>
+            <h1 class="mt-2">{{ categoria.nombre }}</h1>
+            <p>
+                Elige la votación y tu participante.
+                <a class="link-light" href="{% url 'votaciones' %}">Ver todas las votaciones</a>
+            </p>
+        {% else %}
+            <h1>Votaciones abiertas</h1>
+            <p>Consulta las votaciones disponibles y sus participantes.</p>
+        {% endif %}
     </div>
 </header>
 {% endblock %}
@@ -20,7 +29,7 @@
                     <div class="fv-tarjeta-franja"></div>
                     <div class="fv-tarjeta-cuerpo">
                         <span class="fv-insignia align-self-start">
-                            {{ votacion.categoria.nombre }}
+                            {{ votacion.categoria.concurso.nombre }} · {{ votacion.categoria.nombre }}
                         </span>
                         <h2>{{ votacion.titulo }}</h2>
                         {% if votacion.descripcion %}

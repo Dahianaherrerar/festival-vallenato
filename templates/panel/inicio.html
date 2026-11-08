@@ -1,0 +1,32 @@
+{% extends "panel/base_panel.html" %}
+
+{% block titulo %}Administración{% endblock %}
+
+{% block panel %}
+<div class="row g-4">
+    {% for tarjeta in tarjetas %}
+        <div class="col-sm-6 col-lg-4">
+            <article class="fv-tarjeta">
+                <div class="fv-tarjeta-franja"></div>
+                <div class="fv-tarjeta-cuerpo">
+                    <span class="fv-icono-paso"><i class="bi bi-{{ tarjeta.seccion.icono }}"></i></span>
+                    <h2 class="h5 mt-2 mb-1">{{ tarjeta.seccion.plural }}</h2>
+                    <p class="fv-tarjeta-texto small mb-2">{{ tarjeta.seccion.descripcion }}</p>
+                    <div class="d-flex align-items-baseline gap-2 mb-3">
+                        <span class="panel-tarjeta-numero">{{ tarjeta.total }}</span>
+                        <span class="text-muted small">
+                            en total · {{ tarjeta.activos }} {{ tarjeta.seccion.textos_estado.0|lower }}{{ tarjeta.activos|pluralize }}
+                        </span>
+                    </div>
+                    <div class="d-flex gap-2 mt-auto">
+                        <a class="btn btn-fv-borde btn-sm" href="{% url 'panel_lista' tarjeta.clave %}">Ver lista</a>
+                        <a class="btn btn-fv btn-sm" href="{% url 'panel_crear' tarjeta.clave %}">
+                            <i class="bi bi-plus-lg"></i> Nuevo
+                        </a>
+                    </div>
+                </div>
+            </article>
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}

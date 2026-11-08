@@ -39,8 +39,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    
+
     'votaciones',
+    'panel',
 ]
 
 MIDDLEWARE = [
@@ -128,14 +129,31 @@ STATIC_URL = 'static/'
 STATICFILES_DIRS = [BASE_DIR / "static"]
 
 
-# Email
-# https://docs.djangoproject.com/en/6.1/topics/email/#topic-email-configuration
+# Correo (recuperación de contraseña)
+# https://docs.djangoproject.com/en/5.2/topics/email/
+# Si el .env trae una cuenta de correo (por ejemplo Gmail con contraseña de
+# aplicación), los correos se envían de verdad. Si no, se muestran en la
+# terminal donde corre «runserver», para poder probar sin credenciales.
 
-MAILERS = {
-    'default': {
-        'BACKEND': 'django.core.mail.backends.console.EmailBackend',
-    },
-}
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER", "")
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD", "")
+
+if EMAIL_HOST_USER and EMAIL_HOST_PASSWORD:
+    EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+    EMAIL_HOST = os.getenv("EMAIL_HOST", "smtp.gmail.com")
+    EMAIL_PORT = int(os.getenv("EMAIL_PORT", "587"))
+    EMAIL_USE_TLS = True
+else:
+    EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+
+DEFAULT_FROM_EMAIL = (
+    f"Festival Vallenato · Votaciones <{EMAIL_HOST_USER}>"
+    if EMAIL_HOST_USER
+    else "Festival Vallenato · Votaciones <no-responder@festival-vallenato.local>"
+)
+
+# El enlace para restablecer la contraseña vence en 1 hora.
+PASSWORD_RESET_TIMEOUT = 60 * 60
 
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"

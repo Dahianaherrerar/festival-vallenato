@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block estilos %}
+<link rel="stylesheet" href="{% static 'css/panel.css' %}">
+{% endblock %}
+
+{% block portada %}
+<header class="fv-encabezado">
+    <div class="container">
+        <span class="fv-etiqueta mb-2">{% block etiqueta %}<i class="bi bi-gear"></i> Administración{% endblock %}</span>
+        <h1 class="mt-2">{% block encabezado %}Administración{% endblock %}</h1>
+        <p>{% block subtitulo %}Gestiona los datos del Festival sin entrar al Django Admin.{% endblock %}</p>
+    </div>
+</header>
+{% endblock %}
+
+{% block contenido %}
+<section class="container py-4">
+    {% block pestanas %}
+    <nav class="panel-pestanas" aria-label="Secciones de Administración">
+        <a href="{% url 'panel_inicio' %}" class="{% if not clave %}activa{% endif %}">
+            <i class="bi bi-grid"></i> Resumen
+        </a>
+        {% for item_clave, item in secciones.items %}
+            <a href="{% url 'panel_lista' item_clave %}" class="{% if item_clave == clave %}activa{% endif %}">
+                <i class="bi bi-{{ item.icono }}"></i> {{ item.plural }}
+            </a>
+        {% endfor %}
+    </nav>
+    {% endblock %}
+
+    {% block panel %}{% endblock %}
+</section>
+{% endblock %}

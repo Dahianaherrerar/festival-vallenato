@@ -16,10 +16,11 @@
 
     <!-- Estilos propios del Festival -->
     <link rel="stylesheet" href="{% static 'css/festival.css' %}">
+    {% block estilos %}{% endblock %}
 </head>
 <body>
     {% with seccion=request.resolver_match.url_name %}
-    <nav class="navbar navbar-expand-lg navbar-dark fv-navbar">
+    <nav class="navbar navbar-expand-xl navbar-dark fv-navbar">
         <div class="container">
             <a class="navbar-brand d-flex align-items-center gap-2" href="{% url 'inicio' %}">
                 <span class="fv-sello">60°</span>
@@ -36,21 +37,39 @@
             </button>
 
             <div class="collapse navbar-collapse" id="menuPrincipal">
-                <ul class="navbar-nav me-auto mt-3 mt-lg-0 ms-lg-4 gap-lg-1">
+                <ul class="navbar-nav me-auto mt-3 mt-xl-0 ms-xl-4 gap-xl-1 text-nowrap">
                     <li class="nav-item">
                         <a class="nav-link {% if seccion == 'inicio' %}active{% endif %}" href="{% url 'inicio' %}">Inicio</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {% if seccion == 'categorias' %}active{% endif %}" href="{% url 'categorias' %}">Categorías</a>
+                        <a class="nav-link {% if seccion == 'categorias' %}active{% endif %}" href="{% url 'categorias' %}">Concursos</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link {% if seccion == 'votaciones' or seccion == 'votar' or seccion == 'resultados' %}active{% endif %}" href="{% url 'votaciones' %}">Votaciones</a>
                     </li>
+                    {% if user.is_staff %}
+                        <li class="nav-item">
+                            <a class="nav-link {% if seccion and 'panel_' in seccion %}active{% endif %}" href="{% url 'panel_inicio' %}">
+                                <i class="bi bi-gear"></i> Administración
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if seccion and 'usuarios_' in seccion %}active{% endif %}" href="{% url 'usuarios_lista' %}">
+                                <i class="bi bi-person-gear"></i> Usuarios
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if seccion and 'informes_' in seccion %}active{% endif %}" href="{% url 'informes_tablero' %}">
+                                <i class="bi bi-bar-chart"></i> Informes
+                            </a>
+                        </li>
+                    {% endif %}
                 </ul>
 
-                <div class="d-flex flex-column flex-lg-row align-items-lg-center gap-2 py-3 py-lg-0">
+                <div class="d-flex flex-column flex-xl-row align-items-xl-center gap-2 py-3 py-xl-0 text-nowrap">
                     {% if user.is_authenticated %}
-                        <span class="fv-saludo"><i class="bi bi-person-circle"></i> Hola, {{ user.first_name|default:user.username }}</span>
+                        {# Con el menú de administrador, el saludo se oculta entre 1200 y 1399 px para que todo quepa en una línea. #}
+                        <span class="fv-saludo {% if user.is_staff %}d-xl-none d-xxl-inline{% endif %}"><i class="bi bi-person-circle"></i> Hola, {{ user.first_name|default:user.username }}</span>
                         <form action="{% url 'logout' %}" method="post" class="m-0">
                             {% csrf_token %}
                             <button type="submit" class="btn btn-sm btn-fv-salir w-100">Cerrar sesión</button>

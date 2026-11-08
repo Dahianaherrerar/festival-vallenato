@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block titulo %}Nueva contraseña{% endblock %}
+
+{% block contenido %}
+<section class="container py-5">
+    <div class="fv-formulario">
+        {% if validlink %}
+            <div class="text-center mb-4">
+                <span class="fv-sello mb-3"><i class="bi bi-shield-lock"></i></span>
+                <h1 class="h3">Crea tu nueva contraseña</h1>
+                <p class="text-muted mb-0">Escríbela dos veces para confirmarla.</p>
+            </div>
+
+            <div class="fv-tarjeta">
+                <div class="fv-tarjeta-franja"></div>
+                <div class="fv-tarjeta-cuerpo">
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+
+                        {% for campo in form %}
+                            <div class="mb-3">
+                                <label for="{{ campo.id_for_label }}">{{ campo.label }}</label>
+                                {{ campo }}
+                                {% if campo.errors %}
+                                    <div class="fv-error">{{ campo.errors }}</div>
+                                {% endif %}
+                                {% if campo.help_text %}
+                                    <div class="fv-ayuda">{{ campo.help_text|safe }}</div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+
+                        <button type="submit" class="btn btn-fv w-100 btn-lg mt-2">Cambiar</button>
+                    </form>
+                </div>
+            </div>
+        {% else %}
+            <div class="fv-tarjeta">
+                <div class="fv-tarjeta-franja"></div>
+                <div class="fv-tarjeta-cuerpo text-center">
+                    <span class="fv-icono-paso mx-auto mb-3"><i class="bi bi-exclamation-triangle"></i></span>
+                    <h1 class="h4">El enlace no es válido</h1>
+                    <p class="fv-tarjeta-texto">
+                        Este enlace ya se usó o venció. Solicita uno nuevo para
+                        restablecer tu contraseña.
+                    </p>
+                    <a class="btn btn-fv mt-2" href="{% url 'recuperar_clave' %}">Solicitar un nuevo enlace</a>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

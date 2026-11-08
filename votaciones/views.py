@@ -4,10 +4,10 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
 
 from .forms import RegistroForm, VotoForm
-from .models import Categoria, Votacion, Voto
+from .models import Categoria, Opcion, Votacion, Voto
 from django.contrib import messages
 from django.db import IntegrityError, transaction
-from django.db.models import Count
+from django.db.models import Count, Prefetch
 from django.utils import timezone
 
 
@@ -17,10 +17,15 @@ def inicio(request):
 
 
 def categorias(request):
-    lista_categorias = Categoria.objects.filter(
-        activa=True,
-        edicion__activa=True,
-    ).select_related("edicion")
+    lista_categorias = (
+        Categoria.objects.filter(
+            activa=True,
+            concurso__activo=True,
+            edicion__activa=True,
+        )
+        .select_related("concurso", "edicion")
+        .order_by("concurso__nombre", "concurso_id", "nombre")
+    )
 
     return render(
         request,
@@ -31,25 +36,40 @@ def categorias(request):
 
 def votaciones(request):
     # Solo se listan las votaciones en las que hoy se puede votar:
-    # abiertas, de categoría y edición activas, y dentro de sus fechas.
+    # abiertas, de concurso, categoría y edición activos, y dentro de sus fechas.
     ahora = timezone.now()
     lista_votaciones = (
         Votacion.objects.filter(
             abierta=True,
             categoria__activa=True,
+            categoria__concurso__activo=True,
             categoria__edicion__activa=True,
             fecha_inicio__lte=ahora,
             fecha_fin__gte=ahora,
         )
-        .select_related("categoria", "categoria__edicion")
-        .prefetch_related("opciones")
+        .select_related("categoria__concurso", "categoria__edicion")
+        .prefetch_related(
+            Prefetch("opciones", queryset=Opcion.objects.filter(activo=True))
+        )
         .order_by("fecha_inicio")
     )
+
+    # Flujo Concurso → Categoría: desde «Concursos» se llega con
+    # ?categoria=<id> y solo se muestran las votaciones de esa categoría.
+    categoria = None
+    categoria_id = request.GET.get("categoria", "")
+    if categoria_id.isdigit():
+        categoria = (
+            Categoria.objects.select_related("concurso")
+            .filter(pk=categoria_id)
+            .first()
+        )
+        lista_votaciones = lista_votaciones.filter(categoria_id=categoria_id)
 
     return render(
         request,
         "votaciones/votaciones.html",
-        {"votaciones": lista_votaciones},
+        {"votaciones": lista_votaciones, "categoria": categoria},
     )
 
 
@@ -90,17 +110,24 @@ MENSAJE_VOTO_DUPLICADO = (
 def motivo_votacion_no_habilitada(votacion, ahora=None):
     """Devuelve por qué no se puede votar, o None si la votación está habilitada.
 
-    Se revisa en el servidor, en este orden: edición activa, categoría
-    activa, votación abierta y periodo de fechas (CP-05).
+    Se revisa en el servidor, en este orden: edición activa, concurso
+    activo, categoría activa, votación abierta y periodo de fechas (CP-05).
     """
     ahora = ahora or timezone.now()
     categoria = votacion.categoria
+    concurso = categoria.concurso
     edicion = categoria.edicion
 
     if not edicion.activa:
         return (
             f"La edición {edicion.anio} no está activa; "
             "no se pueden registrar votos."
+        )
+
+    if not concurso.activo:
+        return (
+            f"El concurso «{concurso.nombre}» no está habilitado "
+            "para votar."
         )
 
     if not categoria.activa:
@@ -129,7 +156,7 @@ def votar(request, votacion_id):
        guarda el voto dentro de una transacción.
     """
     votacion = get_object_or_404(
-        Votacion.objects.select_related("categoria__edicion"),
+        Votacion.objects.select_related("categoria__concurso", "categoria__edicion"),
         pk=votacion_id,
     )
     categoria = votacion.categoria

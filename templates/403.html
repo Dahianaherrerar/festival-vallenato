@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block titulo %}Acceso denegado{% endblock %}
+
+{% block contenido %}
+<section class="container py-5">
+    <div class="fv-formulario">
+        <div class="fv-tarjeta">
+            <div class="fv-tarjeta-franja"></div>
+            <div class="fv-tarjeta-cuerpo text-center">
+                <span class="fv-icono-paso mx-auto mb-3"><i class="bi bi-shield-lock"></i></span>
+                <h1 class="h4">Acceso denegado</h1>
+                <p class="fv-tarjeta-texto">
+                    Esta sección es solo para administradores del sistema.
+                </p>
+                <a class="btn btn-fv mt-2" href="{% url 'inicio' %}">Volver al inicio</a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

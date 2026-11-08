@@ -1,0 +1,158 @@
+{% extends "panel/base_panel.html" %}
+{% load l10n %}
+
+{% block titulo %}Informes{% endblock %}
+{% block etiqueta %}<i class="bi bi-bar-chart"></i> Informes{% endblock %}
+{% block encabezado %}Informes de resultados{% endblock %}
+{% block subtitulo %}Cómo van las votaciones por concurso, categoría y participante. Descarga el informe para auditoría.{% endblock %}
+{% block pestanas %}{% endblock %}
+
+{% block panel %}
+{% if not edicion %}
+    <div class="fv-vacio">
+        <i class="bi bi-inbox"></i>
+        Todavía no hay ediciones registradas. Créalas en Administración.
+    </div>
+{% else %}
+    <div class="fv-tarjeta mb-4">
+        <div class="fv-tarjeta-cuerpo">
+            <form method="get" class="row g-2 align-items-end">
+                <div class="col-md">
+                    <label class="small fw-semibold" for="edicion">Edición</label>
+                    <select id="edicion" name="edicion" class="form-select" onchange="this.form.concurso.value=''; this.form.submit()">
+                        {% for item in ediciones %}
+                            <option value="{{ item.pk }}" {% if item.pk == edicion.pk %}selected{% endif %}>
+                                {{ item.nombre }} ({{ item.anio }}){% if item.activa %} · activa{% endif %}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md">
+                    <label class="small fw-semibold" for="concurso">Concurso</label>
+                    <select id="concurso" name="concurso" class="form-select">
+                        <option value="">Todos los concursos</option>
+                        {% for item in concursos_edicion %}
+                            <option value="{{ item.pk }}" {% if item.pk == concurso_elegido.pk %}selected{% endif %}>{{ item.nombre }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-auto d-flex flex-wrap gap-2">
+                    <button type="submit" class="btn btn-fv-borde"><i class="bi bi-funnel"></i> Ver informe</button>
+                    <a class="btn btn-fv" href="{% url 'informes_descargar' %}?edicion={{ edicion.pk }}{% if concurso_elegido %}&concurso={{ concurso_elegido.pk }}{% endif %}">
+                        <i class="bi bi-download"></i> Descargar CSV
+                    </a>
+                </div>
+            </form>
+            <p class="text-muted small mt-2 mb-0">
+                El CSV abre en Excel e incluye el resumen por participante y el detalle de cada voto (fecha, usuario y participante).
+            </p>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-lg-3">
+            <div class="panel-resumen"><span class="panel-tarjeta-numero">{{ resumen.total }}</span> Votos</div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="panel-resumen"><span class="panel-tarjeta-numero">{{ resumen.votantes }}</span> Votantes</div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="panel-resumen"><span class="panel-tarjeta-numero">{{ total_votaciones }}</span> Votaciones</div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="panel-resumen panel-resumen-fecha">
+                <span>Último voto</span>
+                <strong>{{ resumen.ultimo|date:"d/m/Y H:i"|default:"Sin votos" }}</strong>
+            </div>
+        </div>
+    </div>
+
+    {% if concursos %}
+        {% if not concurso_elegido %}
+            <div class="fv-tarjeta mb-4">
+                <div class="fv-tarjeta-franja"></div>
+                <div class="fv-tarjeta-cuerpo">
+                    <h2 class="h5 mb-1">Votos por concurso</h2>
+                    <p class="text-muted small mb-0">Participación de cada concurso en el total de la edición.</p>
+                    {% for item in concursos %}
+                        <div class="fv-resultado">
+                            <div class="d-flex justify-content-between gap-3">
+                                <span class="fw-semibold">{{ item.concurso.nombre }}{% if not item.concurso.activo %} <span class="panel-estado panel-estado-no">Inactivo</span>{% endif %}</span>
+                                <span class="fv-total">{{ item.total }} <small class="text-muted fw-normal">({{ item.porcentaje }} %)</small></span>
+                            </div>
+                            <div class="fv-barra" role="progressbar" aria-label="Votos de {{ item.concurso.nombre }}"
+                                 aria-valuenow="{{ item.porcentaje|unlocalize }}" aria-valuemin="0" aria-valuemax="100">
+                                <div class="fv-barra-relleno" style="width: {{ item.porcentaje|unlocalize }}%;"></div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+
+        {% for item in concursos %}
+            <h2 class="panel-titulo-concurso">
+                <i class="bi bi-trophy"></i> {{ item.concurso.nombre }}
+                <small>{{ item.total }} voto{{ item.total|pluralize }}</small>
+            </h2>
+            <div class="row g-4 mb-4">
+                {% for categoria in item.categorias %}
+                    <div class="col-lg-6">
+                        <article class="fv-tarjeta h-100">
+                            <div class="fv-tarjeta-franja"></div>
+                            <div class="fv-tarjeta-cuerpo">
+                                <div class="d-flex justify-content-between align-items-start gap-2">
+                                    <h3 class="h5 mb-0">{{ categoria.categoria.nombre }}</h3>
+                                    <span class="fv-insignia fv-insignia-dorada mb-0 text-nowrap">{{ categoria.total }} voto{{ categoria.total|pluralize }}</span>
+                                </div>
+
+                                {% for votacion in categoria.votaciones %}
+                                    <div class="panel-votacion">
+                                        <div class="d-flex flex-wrap justify-content-between gap-2 align-items-center">
+                                            <span class="fw-semibold">{{ votacion.votacion.titulo }}</span>
+                                            {% if votacion.en_curso %}
+                                                <span class="panel-estado panel-estado-si">En curso · resultados parciales</span>
+                                            {% else %}
+                                                <span class="panel-estado panel-estado-no">Finalizada</span>
+                                            {% endif %}
+                                        </div>
+                                        <p class="fv-fechas small mb-1">
+                                            {{ votacion.votacion.fecha_inicio|date:"d/m/Y H:i" }} – {{ votacion.votacion.fecha_fin|date:"d/m/Y H:i" }}
+                                            · {{ votacion.total }} voto{{ votacion.total|pluralize }}
+                                        </p>
+
+                                        {% for fila in votacion.opciones %}
+                                            <div class="fv-resultado {% if fila.lider %}fv-ganador{% endif %}">
+                                                <div class="d-flex justify-content-between gap-3">
+                                                    <span class="fw-semibold">
+                                                        {% if fila.lider %}<i class="bi bi-trophy-fill" style="color: var(--fv-dorado);"></i>{% endif %}
+                                                        {{ fila.opcion.nombre }}
+                                                        {% if fila.resultado %}<small class="text-muted fw-normal">· {{ fila.resultado }}</small>{% endif %}
+                                                        {% if not fila.opcion.activo %}<span class="panel-estado panel-estado-no">Inactivo</span>{% endif %}
+                                                    </span>
+                                                    <span class="fv-total">{{ fila.votos }} <small class="text-muted fw-normal">({{ fila.porcentaje }} %)</small></span>
+                                                </div>
+                                                <div class="fv-barra" role="progressbar" aria-label="Votos de {{ fila.opcion.nombre }}"
+                                                     aria-valuenow="{{ fila.porcentaje|unlocalize }}" aria-valuemin="0" aria-valuemax="100">
+                                                    <div class="fv-barra-relleno" style="width: {{ fila.porcentaje|unlocalize }}%;"></div>
+                                                </div>
+                                            </div>
+                                        {% empty %}
+                                            <p class="text-muted small mb-0">Sin participantes registrados.</p>
+                                        {% endfor %}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </article>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="fv-vacio">
+            <i class="bi bi-inbox"></i>
+            No hay votaciones registradas{% if concurso_elegido %} en este concurso{% else %} en esta edición{% endif %}.
+        </div>
+    {% endif %}
+{% endif %}
+{% endblock %}

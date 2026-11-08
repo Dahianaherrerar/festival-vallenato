@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block titulo %}Contraseña cambiada{% endblock %}
+
+{% block contenido %}
+<section class="container py-5">
+    <div class="fv-formulario">
+        <div class="fv-tarjeta">
+            <div class="fv-tarjeta-franja"></div>
+            <div class="fv-tarjeta-cuerpo text-center">
+                <span class="fv-icono-paso mx-auto mb-3"><i class="bi bi-check2-circle"></i></span>
+                <h1 class="h4">¡Contraseña cambiada!</h1>
+                <p class="fv-tarjeta-texto">
+                    Tu contraseña se actualizó correctamente. Ya puedes iniciar
+                    sesión con la nueva.
+                </p>
+                <a class="btn btn-fv mt-2" href="{% url 'login' %}">Iniciar sesión</a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
