@@ -7,7 +7,7 @@ from .forms import RegistroForm, VotoForm
 from .models import Categoria, Opcion, Votacion, Voto
 from django.contrib import messages
 from django.db import IntegrityError, transaction
-from django.db.models import Count, Prefetch
+from django.db.models import Count, Exists, OuterRef, Prefetch
 from django.utils import timezone
 
 
@@ -34,6 +34,21 @@ def categorias(request):
     )
 
 
+@login_required
+def participacion(request):
+    votos = (
+        Voto.objects.filter(usuario=request.user)
+        .select_related(
+            "edicion",
+            "categoria__concurso",
+            "votacion",
+            "opcion",
+        )
+        .order_by("-fecha_creacion")
+    )
+    return render(request, "votaciones/participacion.html", {"votos": votos})
+
+
 def votaciones(request):
     # Solo se listan las votaciones en las que hoy se puede votar:
     # abiertas, de concurso, categoría y edición activos, y dentro de sus fechas.
@@ -53,6 +68,17 @@ def votaciones(request):
         )
         .order_by("fecha_inicio")
     )
+
+    if request.user.is_authenticated:
+        lista_votaciones = lista_votaciones.annotate(
+            ya_voto=Exists(
+                Voto.objects.filter(
+                    usuario=request.user,
+                    categoria_id=OuterRef("categoria_id"),
+                    edicion_id=OuterRef("categoria__edicion_id"),
+                )
+            )
+        )
 
     # Flujo Concurso → Categoría: desde «Concursos» se llega con
     # ?categoria=<id> y solo se muestran las votaciones de esa categoría.

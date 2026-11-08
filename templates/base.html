@@ -47,6 +47,13 @@
                     <li class="nav-item">
                         <a class="nav-link {% if seccion == 'votaciones' or seccion == 'votar' or seccion == 'resultados' %}active{% endif %}" href="{% url 'votaciones' %}">Votaciones</a>
                     </li>
+                    {% if user.is_authenticated %}
+                        <li class="nav-item">
+                            <a class="nav-link {% if seccion == 'participacion' %}active{% endif %}" href="{% url 'participacion' %}">
+                                Mi participación
+                            </a>
+                        </li>
+                    {% endif %}
                     {% if user.is_staff %}
                         <li class="nav-item">
                             <a class="nav-link {% if seccion and 'panel_' in seccion %}active{% endif %}" href="{% url 'panel_inicio' %}">

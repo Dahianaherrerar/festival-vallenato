@@ -31,6 +31,11 @@
                         <span class="fv-insignia align-self-start">
                             {{ votacion.categoria.concurso.nombre }} · {{ votacion.categoria.nombre }}
                         </span>
+                        {% if user.is_authenticated and votacion.ya_voto %}
+                            <span class="badge text-bg-secondary align-self-start">
+                                <i class="bi bi-check-circle"></i> Ya votaste en esta categoría
+                            </span>
+                        {% endif %}
                         <h2>{{ votacion.titulo }}</h2>
                         {% if votacion.descripcion %}
                             <p class="fv-tarjeta-texto">{{ votacion.descripcion }}</p>
@@ -52,7 +57,11 @@
                         </div>
 
                         <div class="mt-auto">
-                            {% if user.is_authenticated %}
+                            {% if user.is_authenticated and votacion.ya_voto %}
+                                <a class="btn btn-fv-borde w-100" href="{% url 'participacion' %}">
+                                    <i class="bi bi-clock-history"></i> Ver mi participación
+                                </a>
+                            {% elif user.is_authenticated %}
                                 <a class="btn btn-fv w-100" href="{% url 'votar' votacion.id %}">
                                     <i class="bi bi-check2-square"></i> Votar
                                 </a>
