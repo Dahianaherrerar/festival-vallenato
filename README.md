@@ -35,6 +35,7 @@ Desarrollar una plataforma web que permita organizar procesos de votación de ma
 - Consulta de resultados una vez finalizado el periodo correspondiente.
 - Sección **Administración** dentro de la aplicación (`/administracion/`, solo para usuarios administradores): crear, editar, activar o desactivar y eliminar ediciones, concursos, categorías, votaciones y participantes. Lo que ya tiene votos no se puede eliminar, solo desactivar.
 - Sección **Usuarios** (`/usuarios/`, solo para administradores): lista de usuarios registrados con su correo, tipo, fecha de registro, último ingreso y votos; búsqueda y filtros; botón para enviar al usuario un enlace de restablecimiento de contraseña y opción para activar o desactivar cuentas. Las contraseñas nunca se muestran porque se guardan cifradas.
+- Sección **Informes** (`/informes/`, solo para administradores): tablero con el total de votos, votantes y votaciones; votos por concurso; y, por cada categoría y votación, los votos y el porcentaje de cada participante, con quién va ganando o el ganador. Se filtra por edición y concurso, y permite **descargar un informe CSV** (abre en Excel) con el resumen y el detalle de cada voto (fecha, usuario y participante) para auditoría.
 - Administración de ediciones, concursos, categorías, votaciones, opciones y votos desde Django Admin.
 - Acciones administrativas para abrir y cerrar votaciones.
 - Pruebas automatizadas del comportamiento principal del sistema.
@@ -49,9 +50,10 @@ festival_vallenato/
 │   ├── settings.py
 │   ├── urls.py
 │   └── ...
-├── panel/              # Secciones Administración y Usuarios (luego Informes)
+├── panel/              # Secciones Administración, Usuarios e Informes
 │   ├── tests/
 │   ├── forms.py
+│   ├── informes.py
 │   ├── permisos.py
 │   ├── urls.py
 │   ├── usuarios.py
@@ -183,7 +185,7 @@ Las pruebas automatizadas se ejecutan mediante:
 python manage.py test
 ```
 
-La suite incluye pruebas de vistas, flujo de votación, concursos, recuperación de contraseña, unicidad, concurrencia (app `votaciones`) y de las secciones Administración y Usuarios (app `panel`). Para ejecutar la prueba de concurrencia, la configuración debe apuntar a MySQL; las pruebas se ejecutan en una base de datos de pruebas separada.
+La suite incluye pruebas de vistas, flujo de votación, concursos, recuperación de contraseña, unicidad, concurrencia (app `votaciones`) y de las secciones Administración, Usuarios e Informes (app `panel`). Para ejecutar la prueba de concurrencia, la configuración debe apuntar a MySQL; las pruebas se ejecutan en una base de datos de pruebas separada.
 
 ## 9. Base de datos y seguridad
 

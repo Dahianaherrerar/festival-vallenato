@@ -57,6 +57,44 @@
     font-size: 1.6rem;
 }
 
+.panel-resumen-fecha {
+    flex-direction: column;
+    gap: 0.1rem;
+    font-size: 0.85rem;
+}
+
+.panel-resumen-fecha strong {
+    font-family: "Montserrat", sans-serif;
+    font-size: 1.05rem;
+    color: var(--fv-negro);
+}
+
+/* Informes */
+.panel-titulo-concurso {
+    display: flex;
+    align-items: baseline;
+    gap: 0.6rem;
+    font-size: 1.3rem;
+    margin-bottom: 1rem;
+}
+
+.panel-titulo-concurso i {
+    color: var(--fv-rojo);
+}
+
+.panel-titulo-concurso small {
+    font-family: "Poppins", sans-serif;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--fv-gris);
+}
+
+.panel-votacion {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px dashed var(--fv-borde);
+}
+
 .panel-tabla {
     margin-bottom: 0;
 }
