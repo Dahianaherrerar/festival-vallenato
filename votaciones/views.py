@@ -18,7 +18,8 @@ def inicio(request):
 
 def categorias(request):
     lista_categorias = Categoria.objects.filter(
-        activa=True
+        activa=True,
+        edicion__activa=True,
     ).select_related("edicion")
 
     return render(
@@ -29,10 +30,16 @@ def categorias(request):
 
 
 def votaciones(request):
+    # Solo se listan las votaciones en las que hoy se puede votar:
+    # abiertas, de categoría y edición activas, y dentro de sus fechas.
+    ahora = timezone.now()
     lista_votaciones = (
         Votacion.objects.filter(
             abierta=True,
             categoria__activa=True,
+            categoria__edicion__activa=True,
+            fecha_inicio__lte=ahora,
+            fecha_fin__gte=ahora,
         )
         .select_related("categoria", "categoria__edicion")
         .prefetch_related("opciones")
@@ -75,40 +82,73 @@ def cerrar_sesion(request):
 
 
 
-@login_required
-def votar(request, votacion_id):
-    votacion = get_object_or_404(
-        Votacion,
-        pk=votacion_id,
-        categoria__activa=True,
-        abierta=True,
-    )
+MENSAJE_VOTO_DUPLICADO = (
+    "Ya registraste tu voto en esta categoría para esta edición."
+)
 
-    ahora = timezone.now()
+
+def motivo_votacion_no_habilitada(votacion, ahora=None):
+    """Devuelve por qué no se puede votar, o None si la votación está habilitada.
+
+    Se revisa en el servidor, en este orden: edición activa, categoría
+    activa, votación abierta y periodo de fechas (CP-05).
+    """
+    ahora = ahora or timezone.now()
+    categoria = votacion.categoria
+    edicion = categoria.edicion
+
+    if not edicion.activa:
+        return (
+            f"La edición {edicion.anio} no está activa; "
+            "no se pueden registrar votos."
+        )
+
+    if not categoria.activa:
+        return (
+            f"La categoría «{categoria.nombre}» no está habilitada "
+            "para votar."
+        )
+
+    if not votacion.abierta:
+        return "Esta votación está cerrada y no admite votos."
 
     if not (votacion.fecha_inicio <= ahora <= votacion.fecha_fin):
-        messages.error(
-            request,
-            "Esta votación no está dentro de su periodo habilitado.",
-        )
+        return "Esta votación no está dentro de su periodo habilitado."
+
+    return None
+
+
+@login_required
+def votar(request, votacion_id):
+    """Flujo del voto: seleccionar opción → confirmar → validar → guardar.
+
+    1. GET: muestra las opciones de la votación.
+    2. POST con la opción elegida: valida y muestra la pantalla de
+       confirmación, sin guardar nada todavía.
+    3. POST con confirmar=si: vuelve a validar todo en el servidor y
+       guarda el voto dentro de una transacción.
+    """
+    votacion = get_object_or_404(
+        Votacion.objects.select_related("categoria__edicion"),
+        pk=votacion_id,
+    )
+    categoria = votacion.categoria
+    edicion = categoria.edicion
+
+    # CP-05: se rechaza de forma explícita, con mensaje, cualquier
+    # edición, categoría o votación que no esté habilitada.
+    motivo = motivo_votacion_no_habilitada(votacion)
+    if motivo:
+        messages.error(request, motivo)
         return redirect("votaciones")
 
-    if not votacion.categoria.edicion_id:
-        messages.error(
-            request,
-            "La categoría no tiene una edición asignada y no admite votos.",
-        )
-        return redirect("votaciones")
-
+    # Regla central: un voto por usuario, categoría y edición.
     if Voto.objects.filter(
         usuario=request.user,
-        categoria=votacion.categoria,
-        edicion_id=votacion.categoria.edicion_id,
+        categoria=categoria,
+        edicion=edicion,
     ).exists():
-        messages.warning(
-            request,
-            "Ya registraste tu voto en esta categoría para esta edición.",
-        )
+        messages.warning(request, MENSAJE_VOTO_DUPLICADO)
         return redirect("votaciones")
 
     if request.method == "POST":
@@ -117,28 +157,39 @@ def votar(request, votacion_id):
         if form.is_valid():
             opcion = form.cleaned_data["opcion"]
 
+            # Paso de confirmación: la primera vez solo se muestra el
+            # resumen; el voto se guarda cuando el usuario confirma.
+            if request.POST.get("confirmar") != "si":
+                return render(
+                    request,
+                    "votaciones/confirmar_voto.html",
+                    {"votacion": votacion, "opcion": opcion},
+                )
+
             try:
                 with transaction.atomic():
                     Voto.objects.create(
                         usuario=request.user,
-                        edicion=votacion.categoria.edicion,
-                        categoria=votacion.categoria,
+                        edicion=edicion,
+                        categoria=categoria,
                         votacion=votacion,
                         opcion=opcion,
                     )
-
-                messages.success(
-                    request,
-                    "Tu voto se registró correctamente.",
-                )
-                return redirect("votaciones")
-
             except IntegrityError:
-                messages.warning(
-                    request,
-                    "Ya registraste tu voto en esta categoría para esta edición.",
-                )
+                # Dos solicitudes casi simultáneas: la restricción única de
+                # MySQL deja pasar solo una (CP-09).
+                messages.warning(request, MENSAJE_VOTO_DUPLICADO)
                 return redirect("votaciones")
+
+            messages.success(
+                request,
+                f"Tu voto por «{opcion.nombre}» se registró correctamente.",
+            )
+            return redirect("votaciones")
+
+        # CP-06: opción inválida o de otra categoría. No se guarda nada y
+        # se vuelve a mostrar el formulario con el error.
+        messages.error(request, "No se registró el voto. Revisa tu selección.")
     else:
         form = VotoForm(votacion=votacion)
 

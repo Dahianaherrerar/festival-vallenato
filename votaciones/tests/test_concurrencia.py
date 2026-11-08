@@ -59,7 +59,7 @@ class ConcurrenciaDeVotosTests(TransactionTestCase):
                 barrera.wait(timeout=10)
                 respuesta = cliente.post(
                     reverse("votar", args=[votacion_id]),
-                    {"opcion": opcion_id},
+                    {"opcion": opcion_id, "confirmar": "si"},
                 )
                 return respuesta.status_code
             finally:
