@@ -42,7 +42,10 @@ Edición (2027)
 - Ver los concursos y sus categorías.
 - Votar por un participante, con una pantalla de confirmación antes de guardar el voto.
 - **Un solo voto por categoría.** Ejemplo: quien votó en Piquería Infantil puede votar en Piquería Mayor, pero no otra vez en Piquería Infantil.
+- Ver la marca **«Ya votaste en esta categoría»** y un acceso a Mi participación en todas las votaciones de una categoría donde ya votó.
+- Consultar en **Mi participación** las categorías y opciones por las que ya votó; cada usuario solo ve sus propios registros.
 - Ver los resultados cuando termina la votación.
+- Consultar la API pública `GET /api/categorias/`, que entrega en JSON las categorías habilitadas, sus votaciones y participantes activos.
 
 **Para los administradores**, tres secciones en el menú:
 
@@ -52,7 +55,7 @@ Edición (2027)
 | **Usuarios** | Ver los usuarios registrados con su correo. Enviarles un enlace para restablecer la contraseña. Activar o desactivar cuentas. |
 | **Informes** | Tablero de resultados por concurso, categoría y participante, con porcentajes y ganador. Descarga de un informe **CSV** (abre en Excel) con el detalle de cada voto, para auditoría. |
 
-También está el panel de Django Admin en `/admin/`.
+También está disponible `/admin/` como herramienta técnica de Django. Los registros de votos se pueden consultar allí, pero no agregar, modificar ni eliminar.
 
 ---
 
@@ -242,6 +245,14 @@ python manage.py migrate
 
 Django crea todas las tablas en MySQL. Debe terminar con varias líneas `Applying ... OK`. Si quieres, compruébalo en Workbench: en el esquema `festival_vallenato` aparecen tablas como `votaciones_edicion` y `votaciones_voto` (si no las ves, pulsa el botón de actualizar).
 
+**Datos ficticios para probar (opcional).** Después de las migraciones, puedes cargar una edición con votaciones abiertas, dos subeventos en una categoría, otra categoría activa, una categoría inactiva, participantes y dos usuarios votantes:
+
+```powershell
+python manage.py seed_votaciones
+```
+
+El comando se puede ejecutar más de una vez: crea los registros que falten y no borra votos ni cambia contraseñas. Los registros de prueba se identifican con «Demo». Los usuarios `votante_demo` y `votante_demo_dos` se crean sin contraseña utilizable. Para iniciar sesión con ellos, asígnales una clave local con `python manage.py changepassword votante_demo` y `python manage.py changepassword votante_demo_dos`. Los datos son ficticios; no uses este comando para cargar datos de producción.
+
 ### Paso 7. Crear tu usuario administrador
 
 ```powershell
@@ -286,7 +297,9 @@ La base de datos empieza **vacía**. Para ver el sistema funcionando, crea un ej
    5. **Participantes:** por ejemplo `Opción A`, `Opción B` y `Opción C`, de esa votación.
 3. Para votar como público, abre una **ventana de incógnito** (`Ctrl + Shift + N`), entra a http://127.0.0.1:8000/registro/ y crea un usuario normal.
 4. Con ese usuario ve a **Concursos → Piquería Infantil**, elige un participante y confirma el voto.
-5. Vuelve a la ventana del administrador y abre **Informes**: el voto ya aparece en el tablero y en el CSV.
+5. En el menú del votante, abre **Mi participación** para consultar el voto registrado.
+6. Vuelve a la ventana del administrador y abre **Informes**: el voto ya aparece en el tablero y en el CSV.
+7. Abre http://127.0.0.1:8000/api/categorias/ para consultar las categorías y participantes activos en JSON.
 
 **Cuándo aparece una votación para el público.** Deben cumplirse las cinco condiciones:
 
@@ -297,6 +310,39 @@ La base de datos empieza **vacía**. Para ver el sistema funcionando, crea un ej
 - La fecha actual está entre la fecha de inicio y la de fin.
 
 Los resultados públicos se ven cuando pasa la fecha de fin. Los administradores los ven en todo momento en **Informes**.
+
+### API pública de categorías
+
+`GET /api/categorias/` no requiere iniciar sesión y devuelve JSON con categorías de ediciones y concursos activos, las votaciones asociadas y sus participantes activos. La vista está implementada en `votaciones/api.py`; las fechas se expresan en formato ISO 8601. Una respuesta tiene esta estructura:
+
+```json
+{
+  "categorias": [
+    {
+      "id": 1,
+      "nombre": "Piquería Infantil",
+      "descripcion": "",
+      "edicion": {"id": 1, "nombre": "Festival de prueba", "anio": 2027},
+      "concurso": {"id": 1, "nombre": "Piquería"},
+      "votaciones": [
+        {
+          "id": 1,
+          "titulo": "Votación del público",
+          "descripcion": "",
+          "fecha_inicio": "2027-01-01T08:00:00-05:00",
+          "fecha_fin": "2027-12-31T18:00:00-05:00",
+          "abierta": true,
+          "opciones": [
+            {"id": 1, "nombre": "Participante A", "descripcion": ""}
+          ]
+        }
+      ]
+    }
+  ]
+}
+```
+
+Los identificadores y datos del ejemplo son ilustrativos. Las categorías inactivas, de concursos o ediciones inactivos y las opciones de participantes inactivos no se incluyen.
 
 > Los nombres de concursos, categorías y participantes de los ejemplos son **datos de prueba**, no información oficial del Festival.
 
@@ -348,7 +394,10 @@ Ejecuta todas las pruebas (más de 100) de las apps `votaciones` y `panel`. Tard
 | Archivo | Qué prueba |
 |---|---|
 | `votaciones/tests/test_vistas.py` | Quién puede votar, cuándo se ven los resultados, validaciones de fechas y opciones, abrir y cerrar votaciones. |
-| `votaciones/tests/test_votar.py` | Flujo de votación y confirmación del voto. |
+| `votaciones/tests/test_votar.py` | Flujo de votación y confirmación, marca de voto ya emitido y acceso a otras categorías. |
+| `votaciones/tests/test_participacion_api.py` | CP-07: historial privado del usuario; CP-10: respuesta JSON de la API de categorías. |
+| `votaciones/tests/test_admin.py` | Consulta de los votos desde Django Admin sin permisos para agregarlos, modificarlos ni eliminarlos. |
+| `votaciones/tests/test_seed_votaciones.py` | Datos ficticios y ejecución repetida del comando sin duplicar registros. |
 | `votaciones/tests/test_unicidad.py` | Un solo voto por usuario y categoría. |
 | `votaciones/tests/test_concurrencia.py` | Dos votos al mismo tiempo no generan duplicados (requiere MySQL). |
 | `votaciones/tests/test_concurso.py` | Modelo Concurso y agrupación por concurso. |
@@ -520,6 +569,8 @@ python manage.py test
 | `/votaciones/` | Votaciones disponibles hoy | Todos |
 | `/votaciones/<id>/votar/` | Votar y confirmar | Usuarios con sesión iniciada |
 | `/votaciones/<id>/resultados/` | Resultados de una votación terminada | Todos |
+| `/mi-participacion/` | Historial de categorías y opciones votadas | Usuarios con sesión iniciada |
+| `/api/categorias/` | Categorías y opciones activas en JSON | Todos (GET) |
 | `/administracion/` | Sección Administración | Administradores |
 | `/usuarios/` | Sección Usuarios | Administradores |
 | `/informes/` | Sección Informes y descarga CSV | Administradores |
@@ -536,7 +587,9 @@ festival-vallenato/
 │   └── urls.py             # Une las rutas de las apps
 ├── votaciones/             # App principal (parte pública)
 │   ├── migrations/         # Historial de cambios de las tablas
+│   ├── management/commands/ # Comando seed_votaciones para datos ficticios
 │   ├── tests/              # Pruebas automáticas
+│   ├── api.py              # API GET /api/categorias/
 │   ├── admin.py            # Configuración de Django Admin
 │   ├── forms.py            # Registro, voto y recuperación de contraseña
 │   ├── models.py           # Edición, Concurso, Categoría, Votación, Opción y Voto

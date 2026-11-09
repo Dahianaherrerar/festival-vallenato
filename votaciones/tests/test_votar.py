@@ -207,6 +207,54 @@ class ListaVotacionesHabilitadasTests(BaseVotarTests):
         self.assertNotContains(respuesta, "Votación cerrada")
         self.assertNotContains(respuesta, "Votación de categoría inactiva")
 
+    def test_marca_las_votaciones_de_una_categoria_ya_votada(self):
+        otra_votacion, _ = self.crear_votacion(self.categoria, "Segundo subevento")
+        self.client.force_login(self.usuario)
+        Voto.objects.create(
+            usuario=self.usuario,
+            edicion=self.edicion,
+            categoria=self.categoria,
+            votacion=self.votacion,
+            opcion=self.opcion,
+        )
+
+        respuesta = self.client.get(reverse("votaciones"))
+
+        self.assertContains(respuesta, "Ya votaste en esta categoría", count=2)
+        self.assertContains(respuesta, "Ver mi participación", count=2)
+        self.assertNotContains(
+            respuesta,
+            reverse("votar", args=[self.votacion.pk]),
+        )
+        self.assertNotContains(
+            respuesta,
+            reverse("votar", args=[otra_votacion.pk]),
+        )
+
+    def test_categoria_distinta_sigue_mostrando_la_opcion_de_votar(self):
+        otra_categoria = Categoria.objects.create(
+            edicion=self.edicion,
+            nombre="Otra categoría de prueba",
+            activa=True,
+        )
+        otra_votacion, _ = self.crear_votacion(
+            otra_categoria,
+            "Votación de otra categoría",
+        )
+        self.client.force_login(self.usuario)
+        Voto.objects.create(
+            usuario=self.usuario,
+            edicion=self.edicion,
+            categoria=self.categoria,
+            votacion=self.votacion,
+            opcion=self.opcion,
+        )
+
+        respuesta = self.client.get(reverse("votaciones"))
+
+        self.assertContains(respuesta, reverse("votar", args=[otra_votacion.pk]))
+        self.assertContains(respuesta, "Ya votaste en esta categoría")
+
 
 class CP06OpcionDeOtraCategoriaTests(BaseVotarTests):
     """CP-06: una opción que pertenece a otra categoría se rechaza."""

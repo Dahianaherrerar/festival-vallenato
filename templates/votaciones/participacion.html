@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block titulo %}Mi participación{% endblock %}
+
+{% block portada %}
+<header class="fv-encabezado">
+    <div class="container">
+        <span class="fv-etiqueta mb-2">Historial de votaciones</span>
+        <h1 class="mt-2">Mi participación</h1>
+        <p>Consulta las categorías en las que has registrado un voto.</p>
+    </div>
+</header>
+{% endblock %}
+
+{% block contenido %}
+<section class="container pb-5">
+    {% if votos %}
+        <div class="row g-4">
+            {% for voto in votos %}
+                <div class="col-md-6">
+                    <article class="fv-tarjeta">
+                        <div class="fv-tarjeta-franja"></div>
+                        <div class="fv-tarjeta-cuerpo">
+                            <span class="fv-insignia align-self-start">
+                                {{ voto.edicion.nombre }} · {{ voto.edicion.anio }}
+                            </span>
+                            <h2>{{ voto.categoria.nombre }}</h2>
+                            <p class="fv-tarjeta-texto mb-1">
+                                Concurso: {{ voto.categoria.concurso.nombre }}
+                            </p>
+                            <p class="fv-tarjeta-texto mb-1">
+                                Votación: {{ voto.votacion.titulo }}
+                            </p>
+                            <p class="fv-tarjeta-texto mb-0">
+                                Participante elegido: <strong>{{ voto.opcion.nombre }}</strong>
+                            </p>
+                            <p class="fv-fechas mt-3 mb-0">
+                                <i class="bi bi-calendar-check"></i>
+                                Voto registrado el {{ voto.fecha_creacion|date:"j \d\e F \d\e Y, g:i a" }}
+                            </p>
+                        </div>
+                    </article>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="fv-vacio">
+            <i class="bi bi-inbox"></i>
+            Aún no has registrado votos.
+            <a href="{% url 'votaciones' %}">Ver votaciones disponibles</a>
+        </div>
+    {% endif %}
+</section>
+{% endblock %}
