@@ -82,8 +82,10 @@ class VistasVotacionesTests(TestCase):
             votacion=self.votacion,
             opcion=self.opcion,
         )
+
         self.votacion.fecha_fin = timezone.now() - timedelta(minutes=1)
-        self.votacion.save(update_fields=["fecha_fin"])
+        self.votacion.abierta = False
+        self.votacion.save(update_fields=["fecha_fin", "abierta"])
 
         respuesta = self.client.get(
             reverse("resultados", args=[self.votacion.pk])
@@ -92,6 +94,7 @@ class VistasVotacionesTests(TestCase):
         self.assertEqual(respuesta.status_code, 200)
         self.assertContains(respuesta, "Candidato de prueba")
         self.assertContains(respuesta, "1")
+
 
     def test_usuario_no_puede_votar_con_opcion_de_otra_votacion(self):
         ahora = timezone.now()
@@ -202,3 +205,14 @@ class VistasVotacionesTests(TestCase):
         self.assertEqual(respuesta.status_code, 302)
         self.votacion.refresh_from_db()
         self.assertFalse(self.votacion.abierta)
+
+    def test_resultados_no_disponibles_si_termino_pero_sigue_abierta(self):
+        self.votacion.fecha_fin = timezone.now() - timedelta(minutes=1)
+        self.votacion.abierta = True
+        self.votacion.save(update_fields=["fecha_fin", "abierta"])
+
+        respuesta = self.client.get(
+            reverse("resultados", args=[self.votacion.pk])
+        )
+
+        self.assertRedirects(respuesta, reverse("votaciones"))

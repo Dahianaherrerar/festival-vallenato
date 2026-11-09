@@ -259,10 +259,10 @@ def resultados(request, votacion_id):
         pk=votacion_id,
     )
 
-    if timezone.now() <= votacion.fecha_fin:
+    if timezone.now() <= votacion.fecha_fin or votacion.abierta:
         messages.info(
             request,
-            "Los resultados estarán disponibles cuando termine la votación.",
+            "Los resultados estarán disponibles cuando termine el periodo y la administración cierre la votación.",
         )
         return redirect("votaciones")
 

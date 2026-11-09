@@ -65,6 +65,7 @@ class ConcursoForm(EstiloBootstrap, forms.ModelForm):
         return datos
 
 
+
 class CategoriaForm(EstiloBootstrap, forms.ModelForm):
     class Meta:
         model = Categoria
@@ -81,6 +82,29 @@ class CategoriaForm(EstiloBootstrap, forms.ModelForm):
         self.fields["concurso"].queryset = Concurso.objects.select_related("edicion").order_by(
             "-edicion__anio", "nombre"
         )
+
+    def clean(self):
+        datos = super().clean()
+        concurso = datos.get("concurso")
+        nombre = datos.get("nombre")
+
+        if concurso and nombre:
+            duplicada = Categoria.objects.filter(
+                concurso=concurso,
+                nombre__iexact=nombre.strip(),
+            )
+
+            if self.instance.pk:
+                duplicada = duplicada.exclude(pk=self.instance.pk)
+
+            if duplicada.exists():
+                self.add_error(
+                    "nombre",
+                    "Ya existe una categoría con ese nombre en este concurso.",
+                )
+
+        return datos
+
 
 
 class SelectorCategoria(forms.ModelChoiceField):
@@ -125,11 +149,16 @@ class VotacionForm(EstiloBootstrap, forms.ModelForm):
         }
 
 
+
 class ParticipanteForm(EstiloBootstrap, forms.ModelForm):
     votacion = SelectorVotacion(
         queryset=Votacion.objects.select_related(
             "categoria__concurso", "categoria__edicion"
-        ).order_by("-categoria__edicion__anio", "categoria__concurso__nombre", "categoria__nombre"),
+        ).order_by(
+            "-categoria__edicion__anio",
+            "categoria__concurso__nombre",
+            "categoria__nombre",
+        ),
         label="Votación (concurso · categoría · votación)",
     )
 
@@ -141,3 +170,25 @@ class ParticipanteForm(EstiloBootstrap, forms.ModelForm):
             "descripcion": "Descripción",
             "activo": "Participante activo",
         }
+
+    def clean(self):
+        datos = super().clean()
+        votacion = datos.get("votacion")
+        nombre = datos.get("nombre")
+
+        if votacion and nombre:
+            duplicada = Opcion.objects.filter(
+                votacion=votacion,
+                nombre__iexact=nombre.strip(),
+            )
+
+            if self.instance.pk:
+                duplicada = duplicada.exclude(pk=self.instance.pk)
+
+            if duplicada.exists():
+                self.add_error(
+                    "nombre",
+                    "Ya existe un participante con ese nombre en esta votación.",
+                )
+
+        return datos

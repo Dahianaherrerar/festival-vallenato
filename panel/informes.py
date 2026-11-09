@@ -95,12 +95,24 @@ def resultados_por_concurso(edicion, concurso=None):
 def armar_votacion(votacion, ahora):
     total = votacion.total_votos
     opciones = list(votacion.opciones.all())
+
     maximo = max((o.total_votos for o in opciones), default=0)
     lideres = [o for o in opciones if maximo and o.total_votos == maximo]
+
+    if not votacion.abierta:
+        estado = "Finalizada"
+    elif ahora < votacion.fecha_inicio:
+        estado = "Programada"
+    elif ahora <= votacion.fecha_fin:
+        estado = "En curso"
+    else:
+        estado = "Pendiente de cierre"
+
     return {
         "votacion": votacion,
         "total": total,
-        "en_curso": ahora <= votacion.fecha_fin,
+        "estado": estado,
+        "en_curso": estado == "En curso",
         "empate": len(lideres) > 1,
         "opciones": [
             {
@@ -195,7 +207,7 @@ def descargar(request):
     for item in resultados_por_concurso(edicion, concurso):
         for categoria in item["categorias"]:
             for votacion in categoria["votaciones"]:
-                estado = "En curso" if votacion["en_curso"] else "Finalizada"
+                estado = votacion["estado"]
                 for fila in votacion["opciones"]:
                     escritor.writerow(
                         [

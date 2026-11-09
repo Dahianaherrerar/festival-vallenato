@@ -67,6 +67,14 @@ class Categoria(models.Model):
     descripcion = models.TextField(blank=True)
     activa = models.BooleanField(default=True)
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["concurso", "nombre"],
+                name="categoria_unica_por_concurso",
+            )
+        ]
+
     def sincronizar_edicion(self):
         if self.concurso_id:
             self.edicion_id = self.concurso.edicion_id
@@ -124,6 +132,7 @@ class Votacion(models.Model):
         return self.titulo
 
 
+
 class Opcion(models.Model):
     votacion = models.ForeignKey(
         Votacion,
@@ -135,8 +144,17 @@ class Opcion(models.Model):
     # Un participante desactivado no aparece en el formulario de voto.
     activo = models.BooleanField(default=True)
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["votacion", "nombre"],
+                name="opcion_unica_por_votacion",
+            )
+        ]
+
     def __str__(self):
         return self.nombre
+
 
 
 class Voto(models.Model):

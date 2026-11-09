@@ -127,6 +127,55 @@ class CrearTests(BaseAdministracionTests):
         )
         self.assertTrue(Opcion.objects.filter(votacion=votacion, nombre="Participante 1").exists())
 
+    def test_participante_duplicado_en_votacion_muestra_error(self):
+        respuesta = self.client.post(
+            reverse("panel_crear", args=["participantes"]),
+            {
+                "votacion": self.votacion.pk,
+                "nombre": "opción a",
+                "activo": "on",
+            },
+        )
+
+        self.assertContains(
+            respuesta,
+            "Ya existe un participante con ese nombre en esta votación.",
+        )
+        self.assertEqual(
+            Opcion.objects.filter(votacion=self.votacion).count(),
+            1,
+        )
+
+    def test_mismo_participante_se_permite_en_otra_votacion(self):
+        otra_votacion = Votacion.objects.create(
+            categoria=self.categoria,
+            titulo="Otra votación",
+            fecha_inicio=timezone.now(),
+            fecha_fin=timezone.now() + timedelta(days=2),
+            abierta=True,
+        )
+
+        respuesta = self.client.post(
+            reverse("panel_crear", args=["participantes"]),
+            {
+                "votacion": otra_votacion.pk,
+                "nombre": "Opción A",
+                "activo": "on",
+            },
+        )
+
+        self.assertRedirects(
+            respuesta,
+            reverse("panel_lista", args=["participantes"]),
+        )
+        self.assertTrue(
+            Opcion.objects.filter(
+                votacion=otra_votacion,
+                nombre="Opción A",
+            ).exists()
+        )
+
+
     def test_edicion_con_anio_repetido_muestra_error(self):
         respuesta = self.client.post(
             reverse("panel_crear", args=["ediciones"]),
@@ -143,6 +192,25 @@ class CrearTests(BaseAdministracionTests):
 
         self.assertContains(respuesta, "Ya existe un concurso con ese nombre en esta edición.")
         self.assertEqual(Concurso.objects.filter(edicion=self.edicion).count(), 1)
+
+    def test_categoria_repetida_en_el_mismo_concurso_muestra_error(self):
+        respuesta = self.client.post(
+            reverse("panel_crear", args=["categorias"]),
+            {
+                "concurso": self.concurso.pk,
+                "nombre": "piquería infantil",
+                "activa": "on",
+            },
+        )
+
+        self.assertContains(
+            respuesta,
+            "Ya existe una categoría con ese nombre en este concurso.",
+        )
+        self.assertEqual(
+            Categoria.objects.filter(concurso=self.concurso).count(),
+            1,
+        )
 
     def test_votacion_con_cierre_antes_del_inicio_muestra_error(self):
         respuesta = self.client.post(
@@ -194,6 +262,48 @@ class ListaYEditarTests(BaseAdministracionTests):
         self.concurso.refresh_from_db()
         self.assertEqual(self.concurso.nombre, "Piquería Vallenata")
 
+    def test_editar_participante_conservando_su_nombre(self):
+        respuesta = self.client.post(
+            reverse("panel_editar", args=["participantes", self.opcion.pk]),
+            {
+                "votacion": self.votacion.pk,
+                "nombre": "Opción A",
+                "descripcion": "",
+                "activo": "on",
+            },
+        )
+
+        self.assertRedirects(
+            respuesta,
+            reverse("panel_lista", args=["participantes"]),
+        )
+        self.opcion.refresh_from_db()
+        self.assertEqual(self.opcion.nombre, "Opción A")
+
+    def test_editar_participante_con_nombre_duplicado_muestra_error(self):
+        Opcion.objects.create(
+            votacion=self.votacion,
+            nombre="Opción B",
+        )
+
+        respuesta = self.client.post(
+            reverse("panel_editar", args=["participantes", self.opcion.pk]),
+            {
+                "votacion": self.votacion.pk,
+                "nombre": "opción b",
+                "descripcion": "",
+                "activo": "on",
+            },
+        )
+
+        self.assertContains(
+            respuesta,
+            "Ya existe un participante con ese nombre en esta votación.",
+        )
+
+        self.opcion.refresh_from_db()
+        self.assertEqual(self.opcion.nombre, "Opción A")
+
 
 class EstadoTests(BaseAdministracionTests):
     def setUp(self):
@@ -244,6 +354,22 @@ class EstadoTests(BaseAdministracionTests):
         self.assertNotContains(formulario, 'name="opcion"')
         self.assertContains(voto, "La opción seleccionada no pertenece a esta votación.")
         self.assertEqual(Voto.objects.count(), 0)
+
+    def test_usuario_sin_sesion_no_puede_cambiar_estado(self):
+        self.client.logout()
+
+        url = reverse("panel_estado", args=["concursos", self.concurso.pk])
+
+        respuesta = self.client.get(url)
+
+        self.assertRedirects(
+            respuesta,
+            f"{reverse('login')}?next={url}",
+            fetch_redirect_response=False,
+        )
+
+        self.concurso.refresh_from_db()
+        self.assertTrue(self.concurso.activo)
 
 
 class EliminarTests(BaseAdministracionTests):

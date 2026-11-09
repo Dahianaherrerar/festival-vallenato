@@ -123,6 +123,39 @@ class TableroTests(BaseInformesTests):
         self.assertContains(respuesta, "Ganador")  # Acordeón ya terminó.
         self.assertContains(respuesta, "En curso · resultados parciales")
 
+    def test_muestra_correctamente_los_cuatro_estados(self):
+        ahora = timezone.now()
+
+        programada = Votacion.objects.create(
+            categoria=self.infantil,
+            titulo="Votación programada",
+            fecha_inicio=ahora + timedelta(days=2),
+            fecha_fin=ahora + timedelta(days=4),
+            abierta=True,
+        )
+
+        pendiente = Votacion.objects.create(
+            categoria=self.infantil,
+            titulo="Votación pendiente de cierre",
+            fecha_inicio=ahora - timedelta(days=4),
+            fecha_fin=ahora - timedelta(days=1),
+            abierta=True,
+        )
+
+        respuesta = self.client.get(reverse("informes_tablero"))
+
+        estados = {
+            votacion["votacion"].titulo: votacion["estado"]
+            for concurso in respuesta.context["concursos"]
+            for categoria in concurso["categorias"]
+            for votacion in categoria["votaciones"]
+        }
+
+        self.assertEqual(estados[self.votacion.titulo], "En curso")
+        self.assertEqual(estados[self.votacion_acordeon.titulo], "Finalizada")
+        self.assertEqual(estados[programada.titulo], "Programada")
+        self.assertEqual(estados[pendiente.titulo], "Pendiente de cierre")
+
     def test_empate(self):
         self.votar(Usuario.objects.create_user(username="votante4", password=CLAVE), self.votacion, self.opcion_b)
 
@@ -188,6 +221,48 @@ class DescargarCsvTests(BaseInformesTests):
             [("votante1", "Opción A"), ("votante1", "Participante 1"), ("votante2", "Opción A"), ("votante3", "Opción B")],
         )
 
+    def test_csv_incluye_los_cuatro_estados(self):
+        ahora = timezone.now()
+
+        programada = Votacion.objects.create(
+            categoria=self.infantil,
+            titulo="Votación programada",
+            fecha_inicio=ahora + timedelta(days=2),
+            fecha_fin=ahora + timedelta(days=4),
+            abierta=True,
+        )
+        Opcion.objects.create(
+            votacion=programada,
+            nombre="Participante programado",
+        )
+
+        pendiente = Votacion.objects.create(
+            categoria=self.infantil,
+            titulo="Votación pendiente de cierre",
+            fecha_inicio=ahora - timedelta(days=4),
+            fecha_fin=ahora - timedelta(days=1),
+            abierta=True,
+        )
+        Opcion.objects.create(
+            votacion=pendiente,
+            nombre="Participante pendiente",
+        )
+
+        filas = self.leer_csv(
+            self.client.get(reverse("informes_descargar"))
+        )
+
+        estados = {
+            fila[3]
+            for fila in filas
+            if len(fila) == 8 and fila[0] in ("Piquería", "Acordeón")
+        }
+
+        self.assertEqual(
+            estados,
+            {"Programada", "En curso", "Pendiente de cierre", "Finalizada"},
+        )
+
     def test_respeta_el_filtro_de_concurso(self):
         respuesta = self.client.get(
             reverse("informes_descargar"), {"edicion": self.edicion.pk, "concurso": self.piqueria.pk}
@@ -205,5 +280,10 @@ class DescargarCsvTests(BaseInformesTests):
 
         filas = self.leer_csv(self.client.get(reverse("informes_descargar")))
 
-        self.assertTrue(any("'@SUMA" in fila for fila in filas))
-        self.assertFalse(any("@SUMA" in fila for fila in filas))
+        usuarios = [
+            fila[2]
+            for fila in filas
+            if len(fila) == 7 and fila[2] in ("'@SUMA", "@SUMA")
+        ]
+
+        self.assertEqual(usuarios, ["'@SUMA"])

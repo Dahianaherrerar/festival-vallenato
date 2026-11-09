@@ -281,9 +281,12 @@ def editar(request, clave, pk):
     )
 
 
-@require_POST
 @solo_administradores
 def cambiar_estado(request, clave, pk):
+    if request.method != "POST":
+        from django.http import HttpResponseNotAllowed
+        return HttpResponseNotAllowed(["POST"])
+
     seccion = obtener_seccion(clave)
     objeto = get_object_or_404(seccion.modelo, pk=pk)
 
